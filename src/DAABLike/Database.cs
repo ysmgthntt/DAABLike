@@ -82,8 +82,16 @@ namespace DAABLike
         private DbConnection OpenConnection()
         {
             var connection = CreateConnection();
-            connection.Open();
-            return connection;
+            try
+            {
+                connection.Open();
+                return connection;
+            }
+            catch
+            {
+                connection.Dispose();
+                throw;
+            }
         }
 
         public bool SupportsParameterDiscovery => true;
