@@ -26,7 +26,7 @@ namespace DAABLike
         public void AddInParameter(DbCommand command, string name, DbType dbType)
             => AddParameter(command, name, dbType, ParameterDirection.Input, "", DataRowVersion.Default, null);
 
-        public void AddInParameter(DbCommand command, string name, DbType dbType, object value)
+        public void AddInParameter(DbCommand command, string name, DbType dbType, object? value)
             => AddParameter(command, name, dbType, ParameterDirection.Input, "", DataRowVersion.Default, value);
 
         public void AddInParameter(DbCommand command, string name, DbType dbType, string sourceColumn, DataRowVersion sourceVersion)
@@ -35,7 +35,7 @@ namespace DAABLike
         public void AddOutParameter(DbCommand command, string name, DbType dbType, int size)
             => AddParameter(command, name, dbType, size, ParameterDirection.Output, true, 0, 0, "", DataRowVersion.Default, DBNull.Value);
 
-        public void AddParameter(DbCommand command, string name, DbType dbType, int size, ParameterDirection direction, bool nullable, byte precision, byte scale, string sourceColumn, DataRowVersion sourceVersion, object value)
+        public void AddParameter(DbCommand command, string name, DbType dbType, int size, ParameterDirection direction, bool nullable, byte precision, byte scale, string sourceColumn, DataRowVersion sourceVersion, object? value)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -55,7 +55,7 @@ namespace DAABLike
             command.Parameters.Add(param);
         }
 
-        public void AddParameter(DbCommand command, string name, DbType dbType, ParameterDirection direction, string sourceColumn, DataRowVersion sourceVersion, object value)
+        public void AddParameter(DbCommand command, string name, DbType dbType, ParameterDirection direction, string sourceColumn, DataRowVersion sourceVersion, object? value)
             => AddParameter(command, name, dbType, 0, direction, false, 0, 0, sourceColumn, sourceVersion, value);
 
         #endregion
@@ -256,7 +256,7 @@ namespace DAABLike
 
         #region ExecuteScalar
 
-        public object ExecuteScalar(DbCommand command)
+        public object? ExecuteScalar(DbCommand command)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -266,7 +266,7 @@ namespace DAABLike
             return command.ExecuteScalar();
         }
 
-        public object ExecuteScalar(DbCommand command, DbTransaction transaction)
+        public object? ExecuteScalar(DbCommand command, DbTransaction transaction)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -278,25 +278,25 @@ namespace DAABLike
             return command.ExecuteScalar();
         }
 
-        public object ExecuteScalar(string storedProcedureName, params object[] parameterValues)
+        public object? ExecuteScalar(string storedProcedureName, params object[] parameterValues)
         {
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
             return ExecuteScalar(command);
         }
 
-        public object ExecuteScalar(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
+        public object? ExecuteScalar(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
         {
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
             return ExecuteScalar(command, transaction);
         }
 
-        public object ExecuteScalar(CommandType commandType, string commandText)
+        public object? ExecuteScalar(CommandType commandType, string commandText)
         {
             using var command = CreateCommand(commandType, commandText);
             return ExecuteScalar(command);
         }
 
-        public object ExecuteScalar(DbTransaction transaction, CommandType commandType, string commandText)
+        public object? ExecuteScalar(DbTransaction transaction, CommandType commandType, string commandText)
         {
             using var command = CreateCommand(commandType, commandText);
             return ExecuteScalar(command, transaction);
@@ -306,7 +306,7 @@ namespace DAABLike
 
         public DbDataAdapter GetDataAdapter() => _dbProviderFactory.CreateDataAdapter()!;
 
-        public object GetParameterValue(DbCommand command, string name)
+        public object? GetParameterValue(DbCommand command, string name)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -464,7 +464,7 @@ namespace DAABLike
 
         #endregion
 
-        public void SetParameterValue(DbCommand command, string parameterName, object value)
+        public void SetParameterValue(DbCommand command, string parameterName, object? value)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -474,7 +474,7 @@ namespace DAABLike
 
         #region UpdateDataSet
 
-        public int UpdateDataSet(DataSet dataSet, string tableName, DbCommand insertCommand, DbCommand updateCommand, DbCommand deleteCommand, UpdateBehavior updateBehavior, int? updateBatchSize)
+        public int UpdateDataSet(DataSet dataSet, string tableName, DbCommand? insertCommand, DbCommand? updateCommand, DbCommand? deleteCommand, UpdateBehavior updateBehavior, int? updateBatchSize)
         {
             using var connection = OpenConnection();
             if (updateBehavior == UpdateBehavior.Transactional)
@@ -495,10 +495,10 @@ namespace DAABLike
             return DoUpdateDataSet(updateBehavior, dataSet, tableName, insertCommand, updateCommand, deleteCommand, updateBatchSize);
         }
 
-        public int UpdateDataSet(DataSet dataSet, string tableName, DbCommand insertCommand, DbCommand updateCommand, DbCommand deleteCommand, UpdateBehavior updateBehavior)
+        public int UpdateDataSet(DataSet dataSet, string tableName, DbCommand? insertCommand, DbCommand? updateCommand, DbCommand? deleteCommand, UpdateBehavior updateBehavior)
             => UpdateDataSet(dataSet, tableName, insertCommand, updateCommand, deleteCommand, updateBehavior, null);
 
-        public int UpdateDataSet(DataSet dataSet, string tableName, DbCommand insertCommand, DbCommand updateCommand, DbCommand deleteCommand, DbTransaction transaction, int? updateBatchSize)
+        public int UpdateDataSet(DataSet dataSet, string tableName, DbCommand? insertCommand, DbCommand? updateCommand, DbCommand? deleteCommand, DbTransaction transaction, int? updateBatchSize)
         {
             if (insertCommand is not null)
             {
@@ -519,10 +519,10 @@ namespace DAABLike
             return DoUpdateDataSet(UpdateBehavior.Transactional, dataSet, tableName, insertCommand, updateCommand, deleteCommand, updateBatchSize);
         }
 
-        public int UpdateDataSet(DataSet dataSet, string tableName, DbCommand insertCommand, DbCommand updateCommand, DbCommand deleteCommand, DbTransaction transaction)
+        public int UpdateDataSet(DataSet dataSet, string tableName, DbCommand? insertCommand, DbCommand? updateCommand, DbCommand? deleteCommand, DbTransaction transaction)
             => UpdateDataSet(dataSet, tableName, insertCommand, updateCommand, deleteCommand, transaction, null);
 
-        private int DoUpdateDataSet(UpdateBehavior updateBehavior, DataSet dataSet, string tableName, DbCommand insertCommand, DbCommand updateCommand, DbCommand deleteCommand, int? updateBatchSize)
+        private int DoUpdateDataSet(UpdateBehavior updateBehavior, DataSet dataSet, string tableName, DbCommand? insertCommand, DbCommand? updateCommand, DbCommand? deleteCommand, int? updateBatchSize)
         {
             if (string.IsNullOrEmpty(tableName))
                 throw new ArgumentNullException(nameof(tableName));
@@ -554,7 +554,7 @@ namespace DAABLike
                     deleteCommand.UpdatedRowSource = UpdateRowSource.None;
             }
 
-            return adapter.Update(dataSet.Tables[tableName]);
+            return adapter.Update(dataSet.Tables[tableName]!);
         }
 
         #endregion

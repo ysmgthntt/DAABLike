@@ -21,8 +21,8 @@ namespace DAABLike
             var registration = _databaseRegistrations[name];
             if (registration.DatabaseInstance is not null)
                 return registration.DatabaseInstance;
-            var dbProviderFactory = DbProviderFactories.GetFactory(registration.ProviderInvariantName);
-            var database = new Database(registration.ConnectionString, dbProviderFactory);
+            var dbProviderFactory = DbProviderFactories.GetFactory(registration.ProviderInvariantName!);
+            var database = new Database(registration.ConnectionString!, dbProviderFactory);
             registration.DatabaseInstance = database;
             return database;
         }
