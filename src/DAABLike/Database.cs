@@ -29,13 +29,13 @@ namespace DAABLike
         public void AddInParameter(DbCommand command, string name, DbType dbType, object? value)
             => AddParameter(command, name, dbType, ParameterDirection.Input, "", DataRowVersion.Default, value);
 
-        public void AddInParameter(DbCommand command, string name, DbType dbType, string sourceColumn, DataRowVersion sourceVersion)
+        public void AddInParameter(DbCommand command, string name, DbType dbType, string? sourceColumn, DataRowVersion sourceVersion)
             => AddParameter(command, name, dbType, 0, ParameterDirection.Input, true, 0, 0, sourceColumn, sourceVersion, null);
 
         public void AddOutParameter(DbCommand command, string name, DbType dbType, int size)
             => AddParameter(command, name, dbType, size, ParameterDirection.Output, true, 0, 0, "", DataRowVersion.Default, DBNull.Value);
 
-        public void AddParameter(DbCommand command, string name, DbType dbType, int size, ParameterDirection direction, bool nullable, byte precision, byte scale, string sourceColumn, DataRowVersion sourceVersion, object? value)
+        public void AddParameter(DbCommand command, string name, DbType dbType, int size, ParameterDirection direction, bool nullable, byte precision, byte scale, string? sourceColumn, DataRowVersion sourceVersion, object? value)
         {
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
@@ -55,7 +55,7 @@ namespace DAABLike
             command.Parameters.Add(param);
         }
 
-        public void AddParameter(DbCommand command, string name, DbType dbType, ParameterDirection direction, string sourceColumn, DataRowVersion sourceVersion, object? value)
+        public void AddParameter(DbCommand command, string name, DbType dbType, ParameterDirection direction, string? sourceColumn, DataRowVersion sourceVersion, object? value)
             => AddParameter(command, name, dbType, 0, direction, false, 0, 0, sourceColumn, sourceVersion, value);
 
         #endregion
