@@ -566,5 +566,207 @@ namespace DAABLike
         }
 
         #endregion
+
+        // Async
+
+        private async Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken)
+        {
+            var connection = CreateConnection();
+            try
+            {
+                await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+                return connection;
+            }
+            catch
+            {
+                await connection.DisposeAsync().ConfigureAwait(false);
+                throw;
+            }
+        }
+
+        #region ExecuteNonQueryAsync
+
+        public async Task<int> ExecuteNonQueryAsync(DbCommand command, CancellationToken cancellationToken = default)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            await using var connection = await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+            command.Connection = connection;
+            return await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        public Task<int> ExecuteNonQueryAsync(DbCommand command, DbTransaction transaction, CancellationToken cancellationToken = default)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+            if (transaction is null)
+                throw new ArgumentNullException(nameof(transaction));
+
+            command.Connection = transaction.Connection;
+            command.Transaction = transaction;
+            return command.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        public Task<int> ExecuteNonQueryAsync(string storedProcedureName, params object[] parameterValues)
+        {
+            using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
+            return ExecuteNonQueryAsync(command);
+        }
+
+        public Task<int> ExecuteNonQueryAsync(string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        {
+            using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
+            return ExecuteNonQueryAsync(command, cancellationToken);
+        }
+
+        public Task<int> ExecuteNonQueryAsync(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
+        {
+            using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
+            return ExecuteNonQueryAsync(command, transaction);
+        }
+
+        public Task<int> ExecuteNonQueryAsync(DbTransaction transaction, string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        {
+            using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
+            return ExecuteNonQueryAsync(command, transaction, cancellationToken);
+        }
+
+        public Task<int> ExecuteNonQueryAsync(CommandType commandType, string commandText, CancellationToken cancellationToken = default)
+        {
+            using var command = CreateCommand(commandType, commandText);
+            return ExecuteNonQueryAsync(command, cancellationToken);
+        }
+
+        public Task<int> ExecuteNonQueryAsync(DbTransaction transaction, CommandType commandType, string commandText, CancellationToken cancellationToken = default)
+        {
+            using var command = CreateCommand(commandType, commandText);
+            return ExecuteNonQueryAsync(command, transaction, cancellationToken);
+        }
+
+        #endregion
+
+        #region ExecuteReaderAsync
+
+        public async Task<DbDataReader> ExecuteReaderAsync(DbCommand command, CancellationToken cancellationToken = default)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            command.Connection = await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+            return await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false);
+        }
+
+        public Task<DbDataReader> ExecuteReaderAsync(DbCommand command, DbTransaction transaction, CancellationToken cancellationToken = default)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+            if (transaction is null)
+                throw new ArgumentNullException(nameof(transaction));
+
+            command.Connection = transaction.Connection;
+            command.Transaction = transaction;
+            return command.ExecuteReaderAsync(cancellationToken);
+        }
+
+        public Task<DbDataReader> ExecuteReaderAsync(string storedProcedureName, params object[] parameterValues)
+        {
+            using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
+            return ExecuteReaderAsync(command);
+        }
+
+        public Task<DbDataReader> ExecuteReaderAsync(string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        {
+            using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
+            return ExecuteReaderAsync(command, cancellationToken);
+        }
+
+        public Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
+        {
+            using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
+            return ExecuteReaderAsync(command, transaction);
+        }
+
+        public Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        {
+            using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
+            return ExecuteReaderAsync(command, transaction, cancellationToken);
+        }
+
+        public Task<DbDataReader> ExecuteReaderAsync(CommandType commandType, string commandText, CancellationToken cancellationToken = default)
+        {
+            using var command = CreateCommand(commandType, commandText);
+            return ExecuteReaderAsync(command, cancellationToken);
+        }
+
+        public Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, CommandType commandType, string commandText, CancellationToken cancellationToken = default)
+        {
+            using var command = CreateCommand(commandType, commandText);
+            return ExecuteReaderAsync(command, transaction, cancellationToken);
+        }
+
+        #endregion
+
+        #region ExecuteScalarAsync
+
+        public async Task<object?> ExecuteScalarAsync(DbCommand command, CancellationToken cancellationToken = default)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+
+            await using var connection = await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+            command.Connection = connection;
+            return await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        public Task<object?> ExecuteScalarAsync(DbCommand command, DbTransaction transaction, CancellationToken cancellationToken = default)
+        {
+            if (command is null)
+                throw new ArgumentNullException(nameof(command));
+            if (transaction is null)
+                throw new ArgumentNullException(nameof(transaction));
+
+            command.Connection = transaction.Connection;
+            command.Transaction = transaction;
+            return command.ExecuteScalarAsync(cancellationToken);
+        }
+
+        public Task<object?> ExecuteScalarAsync(string storedProcedureName, params object[] parameterValues)
+        {
+            using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
+            return ExecuteScalarAsync(command);
+        }
+
+        public Task<object?> ExecuteScalarAsync(string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        {
+            using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
+            return ExecuteScalarAsync(command, cancellationToken);
+        }
+
+        public Task<object?> ExecuteScalarAsync(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
+        {
+            using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
+            return ExecuteScalarAsync(command, transaction);
+        }
+
+        public Task<object?> ExecuteScalarAsync(DbTransaction transaction, string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        {
+            using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
+            return ExecuteScalarAsync(command, transaction, cancellationToken);
+        }
+
+        public Task<object?> ExecuteScalarAsync(CommandType commandType, string commandText, CancellationToken cancellationToken = default)
+        {
+            using var command = CreateCommand(commandType, commandText);
+            return ExecuteScalarAsync(command, cancellationToken);
+        }
+
+        public Task<object?> ExecuteScalarAsync(DbTransaction transaction, CommandType commandType, string commandText, CancellationToken cancellationToken = default)
+        {
+            using var command = CreateCommand(commandType, commandText);
+            return ExecuteScalarAsync(command, transaction, cancellationToken);
+        }
+
+        #endregion
     }
 }
