@@ -46,8 +46,8 @@ namespace DAABLike
             param.Size = size;
             param.Direction = direction;
             param.IsNullable = nullable;
-            param.Precision = precision;
-            param.Scale = scale;
+            ((IDbDataParameter)param).Precision = precision;
+            ((IDbDataParameter)param).Scale = scale;
             param.SourceColumn = sourceColumn;
             param.SourceVersion = sourceVersion;
             param.Value = value ?? DBNull.Value;
@@ -569,6 +569,8 @@ namespace DAABLike
 
         // Async
 
+#if !NET35
+
         private async Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken)
         {
             var connection = CreateConnection();
@@ -579,7 +581,11 @@ namespace DAABLike
             }
             catch
             {
+#if NETFRAMEWORK
+                connection.Dispose();
+#else
                 await connection.DisposeAsync().ConfigureAwait(false);
+#endif
                 throw;
             }
         }
@@ -591,7 +597,10 @@ namespace DAABLike
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            await using var connection = await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+#if !NETFRAMEWORK
+            await
+#endif
+            using var connection = await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             command.Connection = connection;
             return await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -714,7 +723,10 @@ namespace DAABLike
             if (command is null)
                 throw new ArgumentNullException(nameof(command));
 
-            await using var connection = await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+#if !NETFRAMEWORK
+            await
+#endif
+            using var connection = await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             command.Connection = connection;
             return await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -768,5 +780,7 @@ namespace DAABLike
         }
 
         #endregion
+
+#endif
     }
 }
