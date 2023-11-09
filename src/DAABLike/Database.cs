@@ -577,7 +577,7 @@ namespace DAABLike
             if (onRowUpdatedEventHandler is null)
             {
                 var handler = typeof(Database).GetMethod(nameof(OnRowUpdated), BindingFlags.NonPublic | BindingFlags.Static)!;
-                onRowUpdatedEventHandler = CreateEventHandler(evt, handler);
+                onRowUpdatedEventHandler = CreateEventProxy(evt, handler);
             }
             evt.AddEventHandler(adapter, onRowUpdatedEventHandler);
         }
@@ -595,7 +595,7 @@ namespace DAABLike
         }
 
         // https://jonnybekkum.wordpress.com/2012/02/19/how-to-c-connect-to-dynamic-event/
-        private static Delegate CreateEventHandler(EventInfo evt, MethodInfo handler)
+        private static Delegate CreateEventProxy(EventInfo evt, MethodInfo handler)
         {
             var handlerType = evt.EventHandlerType!;
             var eventParams = handlerType.GetMethod("Invoke")!.GetParameters();
