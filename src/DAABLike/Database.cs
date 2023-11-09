@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace DAABLike
@@ -539,10 +540,9 @@ namespace DAABLike
             if (insertCommand is null && updateCommand is null && deleteCommand is null)
                 throw new ArgumentException("At least one command must be specified.");
 
-            if (updateBehavior == UpdateBehavior.Continue)
-                throw new NotSupportedException($"{nameof(UpdateBehavior)}.{nameof(UpdateBehavior.Continue)} is not supported.");
-
             using var adapter = GetDataAdapter();
+            if (updateBehavior == UpdateBehavior.Continue)
+                SetUpRowUpdatedEvent(adapter);
 
             if (insertCommand is not null)
                 adapter.InsertCommand = insertCommand;
@@ -563,6 +563,48 @@ namespace DAABLike
             }
 
             return adapter.Update(dataSet.Tables[tableName]!);
+        }
+
+        private Delegate? onRowUpdatedEventHandler;
+
+        private void SetUpRowUpdatedEvent(DbDataAdapter adapter)
+        {
+            var t = adapter.GetType();
+            var evt = t.GetEvent("RowUpdated");
+            if (evt is null)
+                throw new NotSupportedException($"{nameof(UpdateBehavior)}.{nameof(UpdateBehavior.Continue)} is not supported.");
+
+            if (onRowUpdatedEventHandler is null)
+            {
+                var handler = typeof(Database).GetMethod(nameof(OnRowUpdated), BindingFlags.NonPublic | BindingFlags.Static)!;
+                onRowUpdatedEventHandler = CreateEventHandler(evt, handler);
+            }
+            evt.AddEventHandler(adapter, onRowUpdatedEventHandler);
+        }
+
+        private static void OnRowUpdated(object sender, RowUpdatedEventArgs e)
+        {
+            if (e.RecordsAffected == 0)
+            {
+                if (e.Errors is not null)
+                {
+                    e.Row.RowError = "Failed to update row";
+                    e.Status = UpdateStatus.SkipCurrentRow;
+                }
+            }
+        }
+
+        // https://jonnybekkum.wordpress.com/2012/02/19/how-to-c-connect-to-dynamic-event/
+        private static Delegate CreateEventHandler(EventInfo evt, MethodInfo handler)
+        {
+            var handlerType = evt.EventHandlerType!;
+            var eventParams = handlerType.GetMethod("Invoke")!.GetParameters();
+            var parameters = new ParameterExpression[2];
+            parameters[0] = Expression.Parameter(eventParams[0].ParameterType, "sender");
+            parameters[1] = Expression.Parameter(eventParams[1].ParameterType, "e");
+            var body = Expression.Call(handler, parameters[0], parameters[1]);
+            var lambda = Expression.Lambda(body, parameters);
+            return Delegate.CreateDelegate(handlerType, lambda.Compile(), "Invoke");
         }
 
         #endregion
