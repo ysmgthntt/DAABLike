@@ -4,11 +4,11 @@ namespace DAABLike
 {
     public sealed class DatabaseProviderFactory
     {
-        private readonly IDictionary<string, DatabaseRegistration> _databaseRegistrations;
+        private readonly Dictionary<string, DatabaseRegistration> _databaseRegistrations;
 
-        public DatabaseProviderFactory(IDictionary<string, DatabaseRegistration> databaseRegistrations)
+        internal DatabaseProviderFactory(Dictionary<string, DatabaseRegistration> databaseRegistrations)
         {
-            _databaseRegistrations = databaseRegistrations ?? throw new ArgumentNullException(nameof(databaseRegistrations));
+            _databaseRegistrations = databaseRegistrations;
         }
 
         public Database CreateDefault() => Create("");
@@ -26,5 +26,7 @@ namespace DAABLike
             registration.DatabaseInstance = database;
             return database;
         }
+
+        public static DatabaseProviderFactoryBuilder Builder() => new();
     }
 }

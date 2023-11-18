@@ -2,7 +2,7 @@
 
 namespace DAABLike
 {
-    public sealed class DatabaseRegistration
+    internal sealed class DatabaseRegistration
     {
         internal string? ConnectionString { get; }
         internal string? ProviderInvariantName { get; }
@@ -10,11 +10,6 @@ namespace DAABLike
 
         public DatabaseRegistration(string connectionString, string providerInvariantName)
         {
-            if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentNullException(nameof(connectionString));
-            if (string.IsNullOrEmpty(providerInvariantName))
-                throw new ArgumentNullException(nameof(providerInvariantName));
-
             ConnectionString = connectionString;
             ProviderInvariantName = providerInvariantName;
         }
