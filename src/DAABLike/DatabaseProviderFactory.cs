@@ -15,8 +15,7 @@ namespace DAABLike
 
         public Database Create(string name)
         {
-            if (name is null)
-                throw new ArgumentNullException(nameof(name));
+            ANE.ThrowIfNull(name);
 
             var registration = _databaseRegistrations[name];
             if (registration.DatabaseInstance is not null)

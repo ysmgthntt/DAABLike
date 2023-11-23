@@ -13,10 +13,11 @@ namespace DAABLike
 
         public Database(string connectionString, DbProviderFactory dbProviderFactory)
         {
-            if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentNullException(nameof(connectionString));
+            ANE.ThrowIfNullOrEmpty(connectionString);
+            ANE.ThrowIfNull(dbProviderFactory);
+
             _connectionString = connectionString;
-            _dbProviderFactory = dbProviderFactory ?? throw new ArgumentNullException(nameof(dbProviderFactory));
+            _dbProviderFactory = dbProviderFactory;
         }
 
         public string ConnectionString => _connectionString;
@@ -38,8 +39,7 @@ namespace DAABLike
 
         public void AddParameter(DbCommand command, string name, DbType dbType, int size, ParameterDirection direction, bool nullable, byte precision, byte scale, string? sourceColumn, DataRowVersion sourceVersion, object? value)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            ANE.ThrowIfNull(command);
 
             var param = _dbProviderFactory.CreateParameter()!;
             param.ParameterName = name;
@@ -109,8 +109,7 @@ namespace DAABLike
 
         public void DiscoverParameters(DbCommand command)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            ANE.ThrowIfNull(command);
 
             using var connection = OpenConnection();
             using var discoveryCommand = CreateCommand(command.CommandType, command.CommandText);
@@ -168,8 +167,7 @@ namespace DAABLike
 
         public int ExecuteNonQuery(DbCommand command)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            ANE.ThrowIfNull(command);
 
             using var connection = OpenConnection();
             command.Connection = connection;
@@ -178,10 +176,8 @@ namespace DAABLike
 
         public int ExecuteNonQuery(DbCommand command, DbTransaction transaction)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-            if (transaction is null)
-                throw new ArgumentNullException(nameof(transaction));
+            ANE.ThrowIfNull(command);
+            ANE.ThrowIfNull(transaction);
 
             command.Connection = transaction.Connection;
             command.Transaction = transaction;
@@ -218,8 +214,7 @@ namespace DAABLike
 
         public IDataReader ExecuteReader(DbCommand command)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            ANE.ThrowIfNull(command);
 
             command.Connection = OpenConnection();
             return command.ExecuteReader(CommandBehavior.CloseConnection);
@@ -227,10 +222,8 @@ namespace DAABLike
 
         public IDataReader ExecuteReader(DbCommand command, DbTransaction transaction)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-            if (transaction is null)
-                throw new ArgumentNullException(nameof(transaction));
+            ANE.ThrowIfNull(command);
+            ANE.ThrowIfNull(transaction);
 
             command.Connection = transaction.Connection;
             command.Transaction = transaction;
@@ -267,8 +260,7 @@ namespace DAABLike
 
         public object? ExecuteScalar(DbCommand command)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            ANE.ThrowIfNull(command);
 
             using var connection = OpenConnection();
             command.Connection = connection;
@@ -277,10 +269,8 @@ namespace DAABLike
 
         public object? ExecuteScalar(DbCommand command, DbTransaction transaction)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-            if (transaction is null)
-                throw new ArgumentNullException(nameof(transaction));
+            ANE.ThrowIfNull(command);
+            ANE.ThrowIfNull(transaction);
 
             command.Connection = transaction.Connection;
             command.Transaction = transaction;
@@ -317,32 +307,28 @@ namespace DAABLike
 
         public object? GetParameterValue(DbCommand command, string name)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            ANE.ThrowIfNull(command);
 
             return command.Parameters[name].Value;
         }
 
         public DbCommand GetSqlStringCommand(string query)
         {
-            if (string.IsNullOrEmpty(query))
-                throw new ArgumentNullException(nameof(query));
+            ANE.ThrowIfNullOrEmpty(query);
 
             return CreateCommand(CommandType.Text, query);
         }
 
         public DbCommand GetStoredProcCommand(string storedProcedureName)
         {
-            if (string.IsNullOrEmpty(storedProcedureName))
-                throw new ArgumentNullException(nameof(storedProcedureName));
+            ANE.ThrowIfNullOrEmpty(storedProcedureName);
 
             return CreateCommand(CommandType.StoredProcedure, storedProcedureName);
         }
 
         public DbCommand GetStoredProcCommand(string storedProcedureName, params object[] parameterValues)
         {
-            if (string.IsNullOrEmpty(storedProcedureName))
-                throw new ArgumentNullException(nameof(storedProcedureName));
+            ANE.ThrowIfNullOrEmpty(storedProcedureName);
 
             var command = CreateCommand(CommandType.StoredProcedure, storedProcedureName);
             AssignParameters(command, parameterValues);
@@ -351,10 +337,8 @@ namespace DAABLike
 
         public void AssignParameters(DbCommand command, object[] parameterValues)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-            if (parameterValues is null)
-                throw new ArgumentNullException(nameof(parameterValues));
+            ANE.ThrowIfNull(command);
+            ANE.ThrowIfNull(parameterValues);
 
             var parameters = command.Parameters;
             int startIndex = (parameters.Count > 0 && parameters[0].Direction == ParameterDirection.ReturnValue) ? 1 : 0;
@@ -367,10 +351,8 @@ namespace DAABLike
 
         public DbCommand GetStoredProcCommandWithSourceColumns(string storedProcedureName, params string[] sourceColumns)
         {
-            if (string.IsNullOrEmpty(storedProcedureName))
-                throw new ArgumentNullException(nameof(storedProcedureName));
-            if (sourceColumns is null)
-                throw new ArgumentNullException(nameof(sourceColumns));
+            ANE.ThrowIfNullOrEmpty(storedProcedureName);
+            ANE.ThrowIfNull(sourceColumns);
 
             var command = GetStoredProcCommand(storedProcedureName);
 
@@ -404,8 +386,7 @@ namespace DAABLike
 
         public void LoadDataSet(DbCommand command, DataSet dataSet, string[] tableNames)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            ANE.ThrowIfNull(command);
 
             using var connection = OpenConnection();
             command.Connection = connection;
@@ -414,10 +395,8 @@ namespace DAABLike
 
         public void LoadDataSet(DbCommand command, DataSet dataSet, string[] tableNames, DbTransaction transaction)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-            if (transaction is null)
-                throw new ArgumentNullException(nameof(transaction));
+            ANE.ThrowIfNull(command);
+            ANE.ThrowIfNull(transaction);
 
             command.Connection = transaction.Connection;
             command.Transaction = transaction;
@@ -450,10 +429,8 @@ namespace DAABLike
 
         private void DoLoadDataSet(DbCommand command, DataSet dataSet, string[] tableNames)
         {
-            if (dataSet is null)
-                throw new ArgumentNullException(nameof(dataSet));
-            if (tableNames is null)
-                throw new ArgumentNullException(nameof(tableNames));
+            ANE.ThrowIfNull(dataSet);
+            ANE.ThrowIfNull(tableNames);
             if (tableNames.Length == 0)
                 throw new ArgumentException($"{nameof(tableNames)} cannot be empty.", nameof(tableNames));
             for (int i = 0; i < tableNames.Length; i++)
@@ -475,8 +452,7 @@ namespace DAABLike
 
         public void SetParameterValue(DbCommand command, string parameterName, object? value)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            ANE.ThrowIfNull(command);
 
             command.Parameters[parameterName].Value = value ?? DBNull.Value;
         }
@@ -533,10 +509,8 @@ namespace DAABLike
 
         private int DoUpdateDataSet(UpdateBehavior updateBehavior, DataSet dataSet, string tableName, DbCommand? insertCommand, DbCommand? updateCommand, DbCommand? deleteCommand, int? updateBatchSize)
         {
-            if (string.IsNullOrEmpty(tableName))
-                throw new ArgumentNullException(nameof(tableName));
-            if (dataSet is null)
-                throw new ArgumentNullException(nameof(dataSet));
+            ANE.ThrowIfNullOrEmpty(tableName);
+            ANE.ThrowIfNull(dataSet);
             if (insertCommand is null && updateCommand is null && deleteCommand is null)
                 throw new ArgumentException("At least one command must be specified.");
 
@@ -636,8 +610,7 @@ namespace DAABLike
 
         public async Task<int> ExecuteNonQueryAsync(DbCommand command, CancellationToken cancellationToken = default)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            ANE.ThrowIfNull(command);
 
 #if !NETFRAMEWORK
             await
@@ -649,10 +622,8 @@ namespace DAABLike
 
         public Task<int> ExecuteNonQueryAsync(DbCommand command, DbTransaction transaction, CancellationToken cancellationToken = default)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-            if (transaction is null)
-                throw new ArgumentNullException(nameof(transaction));
+            ANE.ThrowIfNull(command);
+            ANE.ThrowIfNull(transaction);
 
             command.Connection = transaction.Connection;
             command.Transaction = transaction;
@@ -701,8 +672,7 @@ namespace DAABLike
 
         public async Task<DbDataReader> ExecuteReaderAsync(DbCommand command, CancellationToken cancellationToken = default)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            ANE.ThrowIfNull(command);
 
             command.Connection = await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
             return await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false);
@@ -710,10 +680,8 @@ namespace DAABLike
 
         public Task<DbDataReader> ExecuteReaderAsync(DbCommand command, DbTransaction transaction, CancellationToken cancellationToken = default)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-            if (transaction is null)
-                throw new ArgumentNullException(nameof(transaction));
+            ANE.ThrowIfNull(command);
+            ANE.ThrowIfNull(transaction);
 
             command.Connection = transaction.Connection;
             command.Transaction = transaction;
@@ -762,8 +730,7 @@ namespace DAABLike
 
         public async Task<object?> ExecuteScalarAsync(DbCommand command, CancellationToken cancellationToken = default)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
+            ANE.ThrowIfNull(command);
 
 #if !NETFRAMEWORK
             await
@@ -775,10 +742,8 @@ namespace DAABLike
 
         public Task<object?> ExecuteScalarAsync(DbCommand command, DbTransaction transaction, CancellationToken cancellationToken = default)
         {
-            if (command is null)
-                throw new ArgumentNullException(nameof(command));
-            if (transaction is null)
-                throw new ArgumentNullException(nameof(transaction));
+            ANE.ThrowIfNull(command);
+            ANE.ThrowIfNull(transaction);
 
             command.Connection = transaction.Connection;
             command.Transaction = transaction;

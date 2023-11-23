@@ -14,12 +14,9 @@ namespace DAABLike
 
         public DatabaseProviderFactoryBuilder Register(string name, string connectionString, string providerInvariantName)
         {
-            if (name is null)
-                throw new ArgumentNullException(nameof(name));
-            if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentNullException(nameof(connectionString));
-            if (string.IsNullOrEmpty(providerInvariantName))
-                throw new ArgumentNullException(nameof(providerInvariantName));
+            ANE.ThrowIfNull(name);
+            ANE.ThrowIfNullOrEmpty(connectionString);
+            ANE.ThrowIfNullOrEmpty(providerInvariantName);
 
             _databaseRegistrations.Add(name, new DatabaseRegistration(connectionString, providerInvariantName));
             return this;

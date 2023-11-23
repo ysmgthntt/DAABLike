@@ -13,18 +13,15 @@
 
         public static void SetDatabaseProviderFactory(DatabaseProviderFactory factory, bool throwIfSet = true)
         {
-            if (factory is null)
-                throw new ArgumentNullException(nameof(factory));
+            ANE.ThrowIfNull(factory);
 
             SetDatabases(factory.CreateDefault, factory.Create, throwIfSet);
         }
 
         public static void SetDatabases(Func<Database> createDefaultDatabase, Func<string, Database> createNamedDatabase, bool throwIfSet = true)
         {
-            if (createDefaultDatabase is null)
-                throw new ArgumentNullException(nameof(createDefaultDatabase));
-            if (createNamedDatabase is null)
-                throw new ArgumentNullException(nameof(createNamedDatabase));
+            ANE.ThrowIfNull(createDefaultDatabase);
+            ANE.ThrowIfNull(createNamedDatabase);
 
             if (throwIfSet && _createDefaultDatabase is not null && _createNamedDatabase is not null)
                 throw new InvalidOperationException("Already set.");
