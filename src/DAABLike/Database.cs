@@ -642,7 +642,7 @@ namespace DAABLike
             return await ExecuteNonQueryAsync(command).ConfigureAwait(false);
         }
 
-        public async Task<int> ExecuteNonQueryAsync(string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        public async Task<int> ExecuteNonQueryAsync(string storedProcedureName, CancellationToken cancellationToken, params object[] parameterValues)
         {
 #if !NETFRAMEWORK
             await
@@ -660,7 +660,7 @@ namespace DAABLike
             return await ExecuteNonQueryAsync(command, transaction).ConfigureAwait(false);
         }
 
-        public async Task<int> ExecuteNonQueryAsync(DbTransaction transaction, string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        public async Task<int> ExecuteNonQueryAsync(DbTransaction transaction, string storedProcedureName, CancellationToken cancellationToken, params object[] parameterValues)
         {
 #if !NETFRAMEWORK
             await
@@ -718,7 +718,7 @@ namespace DAABLike
             return await ExecuteReaderAsync(command).ConfigureAwait(false);
         }
 
-        public async Task<DbDataReader> ExecuteReaderAsync(string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        public async Task<DbDataReader> ExecuteReaderAsync(string storedProcedureName, CancellationToken cancellationToken, params object[] parameterValues)
         {
 #if !NETFRAMEWORK
             await
@@ -736,7 +736,7 @@ namespace DAABLike
             return await ExecuteReaderAsync(command, transaction).ConfigureAwait(false);
         }
 
-        public async Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        public async Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, string storedProcedureName, CancellationToken cancellationToken, params object[] parameterValues)
         {
 #if !NETFRAMEWORK
             await
@@ -798,7 +798,7 @@ namespace DAABLike
             return await ExecuteScalarAsync(command).ConfigureAwait(false);
         }
 
-        public async Task<object?> ExecuteScalarAsync(string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        public async Task<object?> ExecuteScalarAsync(string storedProcedureName, CancellationToken cancellationToken, params object[] parameterValues)
         {
 #if !NETFRAMEWORK
             await
@@ -816,7 +816,7 @@ namespace DAABLike
             return await ExecuteScalarAsync(command, transaction).ConfigureAwait(false);
         }
 
-        public async Task<object?> ExecuteScalarAsync(DbTransaction transaction, string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        public async Task<object?> ExecuteScalarAsync(DbTransaction transaction, string storedProcedureName, CancellationToken cancellationToken, params object[] parameterValues)
         {
 #if !NETFRAMEWORK
             await
