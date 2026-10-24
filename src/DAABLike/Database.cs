@@ -340,6 +340,9 @@ namespace DAABLike
             ANE.ThrowIfNull(command);
             ANE.ThrowIfNull(parameterValues);
 
+            // ParameterCache is not implemented.
+            DiscoverParameters(command);
+
             var parameters = command.Parameters;
             int startIndex = (parameters.Count > 0 && parameters[0].Direction == ParameterDirection.ReturnValue) ? 1 : 0;
             if (parameters.Count - startIndex != parameterValues.Length)
