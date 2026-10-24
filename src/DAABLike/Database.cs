@@ -696,7 +696,7 @@ namespace DAABLike
             ANE.ThrowIfNull(command);
 
             command.Connection = await OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
-            return await command.ExecuteReaderAsync(CommandBehavior.CloseConnection).ConfigureAwait(false);
+            return await command.ExecuteReaderAsync(CommandBehavior.CloseConnection, cancellationToken).ConfigureAwait(false);
         }
 
         public Task<DbDataReader> ExecuteReaderAsync(DbCommand command, DbTransaction transaction, CancellationToken cancellationToken = default)

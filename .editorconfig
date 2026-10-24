@@ -14,3 +14,6 @@ dotnet_diagnostic.CSIsNull001.severity = error
 
 # CSIsNull002: Use `is object` for non-null checks
 dotnet_diagnostic.CSIsNull002.severity = error
+
+# CA2016: 'CancellationToken' パラメーターをメソッドに転送する
+dotnet_diagnostic.CA2016.severity = error
