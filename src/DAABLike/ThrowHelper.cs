@@ -1,6 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-global using ANE = System.ArgumentNullException;
-#else
+﻿#if !NET7_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -8,28 +6,34 @@ internal static class ANE
 {
     // ArgumentException
 
-    public static void ThrowIfNullOrEmpty(/*[NotNull]*/ string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    extension(ArgumentException)
     {
-        if (string.IsNullOrEmpty(argument))
+        public static void ThrowIfNullOrEmpty(/*[NotNull]*/ string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         {
-            ThrowNullOrEmptyException(argument, paramName);
+            if (string.IsNullOrEmpty(argument))
+            {
+                ThrowNullOrEmptyException(argument, paramName);
+            }
         }
     }
 
     //[DoesNotReturn]
     private static void ThrowNullOrEmptyException(string? argument, string? paramName)
     {
-        ANE.ThrowIfNull(argument, paramName);
+        ArgumentNullException.ThrowIfNull(argument, paramName);
         throw new ArgumentException("The value cannot be an empty string.", paramName);
     }
 
     // ArgumentNullException
 
-    public static void ThrowIfNull(/*[NotNull]*/ object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+    extension(ArgumentNullException)
     {
-        if (argument is null)
+        public static void ThrowIfNull(/*[NotNull]*/ object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         {
-            Throw(paramName);
+            if (argument is null)
+            {
+                Throw(paramName);
+            }
         }
     }
 

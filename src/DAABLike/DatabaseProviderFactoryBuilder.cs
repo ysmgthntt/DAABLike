@@ -14,9 +14,9 @@ namespace DAABLike
 
         public DatabaseProviderFactoryBuilder Register(string name, string connectionString, string providerInvariantName)
         {
-            ANE.ThrowIfNull(name);
-            ANE.ThrowIfNullOrEmpty(connectionString);
-            ANE.ThrowIfNullOrEmpty(providerInvariantName);
+            ArgumentNullException.ThrowIfNull(name);
+            ArgumentException.ThrowIfNullOrEmpty(connectionString);
+            ArgumentException.ThrowIfNullOrEmpty(providerInvariantName);
 
             _databaseRegistrations.Add(name, new DatabaseRegistration(connectionString, providerInvariantName));
             return this;
