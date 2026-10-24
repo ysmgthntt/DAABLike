@@ -633,40 +633,58 @@ namespace DAABLike
             return command.ExecuteNonQueryAsync(cancellationToken);
         }
 
-        public Task<int> ExecuteNonQueryAsync(string storedProcedureName, params object[] parameterValues)
+        public async Task<int> ExecuteNonQueryAsync(string storedProcedureName, params object[] parameterValues)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
-            return ExecuteNonQueryAsync(command);
+            return await ExecuteNonQueryAsync(command).ConfigureAwait(false);
         }
 
-        public Task<int> ExecuteNonQueryAsync(string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        public async Task<int> ExecuteNonQueryAsync(string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
-            return ExecuteNonQueryAsync(command, cancellationToken);
+            return await ExecuteNonQueryAsync(command, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task<int> ExecuteNonQueryAsync(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
+        public async Task<int> ExecuteNonQueryAsync(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
-            return ExecuteNonQueryAsync(command, transaction);
+            return await ExecuteNonQueryAsync(command, transaction).ConfigureAwait(false);
         }
 
-        public Task<int> ExecuteNonQueryAsync(DbTransaction transaction, string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        public async Task<int> ExecuteNonQueryAsync(DbTransaction transaction, string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
-            return ExecuteNonQueryAsync(command, transaction, cancellationToken);
+            return await ExecuteNonQueryAsync(command, transaction, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task<int> ExecuteNonQueryAsync(CommandType commandType, string commandText, CancellationToken cancellationToken = default)
+        public async Task<int> ExecuteNonQueryAsync(CommandType commandType, string commandText, CancellationToken cancellationToken = default)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = CreateCommand(commandType, commandText);
-            return ExecuteNonQueryAsync(command, cancellationToken);
+            return await ExecuteNonQueryAsync(command, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task<int> ExecuteNonQueryAsync(DbTransaction transaction, CommandType commandType, string commandText, CancellationToken cancellationToken = default)
+        public async Task<int> ExecuteNonQueryAsync(DbTransaction transaction, CommandType commandType, string commandText, CancellationToken cancellationToken = default)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = CreateCommand(commandType, commandText);
-            return ExecuteNonQueryAsync(command, transaction, cancellationToken);
+            return await ExecuteNonQueryAsync(command, transaction, cancellationToken).ConfigureAwait(false);
         }
 
         #endregion
@@ -691,40 +709,58 @@ namespace DAABLike
             return command.ExecuteReaderAsync(cancellationToken);
         }
 
-        public Task<DbDataReader> ExecuteReaderAsync(string storedProcedureName, params object[] parameterValues)
+        public async Task<DbDataReader> ExecuteReaderAsync(string storedProcedureName, params object[] parameterValues)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
-            return ExecuteReaderAsync(command);
+            return await ExecuteReaderAsync(command).ConfigureAwait(false);
         }
 
-        public Task<DbDataReader> ExecuteReaderAsync(string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        public async Task<DbDataReader> ExecuteReaderAsync(string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
-            return ExecuteReaderAsync(command, cancellationToken);
+            return await ExecuteReaderAsync(command, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
+        public async Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
-            return ExecuteReaderAsync(command, transaction);
+            return await ExecuteReaderAsync(command, transaction).ConfigureAwait(false);
         }
 
-        public Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        public async Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
-            return ExecuteReaderAsync(command, transaction, cancellationToken);
+            return await ExecuteReaderAsync(command, transaction, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task<DbDataReader> ExecuteReaderAsync(CommandType commandType, string commandText, CancellationToken cancellationToken = default)
+        public async Task<DbDataReader> ExecuteReaderAsync(CommandType commandType, string commandText, CancellationToken cancellationToken = default)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = CreateCommand(commandType, commandText);
-            return ExecuteReaderAsync(command, cancellationToken);
+            return await ExecuteReaderAsync(command, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, CommandType commandType, string commandText, CancellationToken cancellationToken = default)
+        public async Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, CommandType commandType, string commandText, CancellationToken cancellationToken = default)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = CreateCommand(commandType, commandText);
-            return ExecuteReaderAsync(command, transaction, cancellationToken);
+            return await ExecuteReaderAsync(command, transaction, cancellationToken).ConfigureAwait(false);
         }
 
         #endregion
@@ -753,40 +789,58 @@ namespace DAABLike
             return command.ExecuteScalarAsync(cancellationToken);
         }
 
-        public Task<object?> ExecuteScalarAsync(string storedProcedureName, params object[] parameterValues)
+        public async Task<object?> ExecuteScalarAsync(string storedProcedureName, params object[] parameterValues)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
-            return ExecuteScalarAsync(command);
+            return await ExecuteScalarAsync(command).ConfigureAwait(false);
         }
 
-        public Task<object?> ExecuteScalarAsync(string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        public async Task<object?> ExecuteScalarAsync(string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
-            return ExecuteScalarAsync(command, cancellationToken);
+            return await ExecuteScalarAsync(command, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task<object?> ExecuteScalarAsync(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
+        public async Task<object?> ExecuteScalarAsync(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
-            return ExecuteScalarAsync(command, transaction);
+            return await ExecuteScalarAsync(command, transaction).ConfigureAwait(false);
         }
 
-        public Task<object?> ExecuteScalarAsync(DbTransaction transaction, string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
+        public async Task<object?> ExecuteScalarAsync(DbTransaction transaction, string storedProcedureName, object[] parameterValues, CancellationToken cancellationToken)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
-            return ExecuteScalarAsync(command, transaction, cancellationToken);
+            return await ExecuteScalarAsync(command, transaction, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task<object?> ExecuteScalarAsync(CommandType commandType, string commandText, CancellationToken cancellationToken = default)
+        public async Task<object?> ExecuteScalarAsync(CommandType commandType, string commandText, CancellationToken cancellationToken = default)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = CreateCommand(commandType, commandText);
-            return ExecuteScalarAsync(command, cancellationToken);
+            return await ExecuteScalarAsync(command, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task<object?> ExecuteScalarAsync(DbTransaction transaction, CommandType commandType, string commandText, CancellationToken cancellationToken = default)
+        public async Task<object?> ExecuteScalarAsync(DbTransaction transaction, CommandType commandType, string commandText, CancellationToken cancellationToken = default)
         {
+#if !NETFRAMEWORK
+            await
+#endif
             using var command = CreateCommand(commandType, commandText);
-            return ExecuteScalarAsync(command, transaction, cancellationToken);
+            return await ExecuteScalarAsync(command, transaction, cancellationToken).ConfigureAwait(false);
         }
 
         #endregion
