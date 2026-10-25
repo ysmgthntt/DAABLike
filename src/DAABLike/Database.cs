@@ -96,31 +96,49 @@ namespace DAABLike
         }
 
         public bool SupportsParameterDiscovery
-            => _miDeriveParameters is not null ? true
+            => _deriveParametersMethodProxy is not null ? true
             : _noDeriveParametersMethod ? false
-            : (_miDeriveParameters = GetDeriveParametersMethod()) is not null;
+            : (_deriveParametersMethodProxy = CreateDeriveParametersMethodProxy()) is not null;
 
         private bool _noDeriveParametersMethod;
-        private MethodInfo? _miDeriveParameters;
+        private Action<DbCommand>? _deriveParametersMethodProxy;
 
-        private MethodInfo? GetDeriveParametersMethod()
+        private Action<DbCommand>? CreateDeriveParametersMethodProxy()
         {
             var cb = _dbProviderFactory.CreateCommandBuilder()!;
             var t = cb.GetType();
             var mi = t.GetMethod("DeriveParameters", BindingFlags.Public | BindingFlags.Static);
             if (mi is null)
+            {
                 _noDeriveParametersMethod = true;
-            return mi;
+                return null;
+            }
+
+            var parameters = mi.GetParameters();
+            if (parameters.Length != 1)
+            {
+                _noDeriveParametersMethod = true;
+                return null;
+            }
+
+            // void CallDeriveParameters(DbCommand command) => XxxCommandBuilder.DeriveParameters((XxxCommand)command);
+            var inputParam = Expression.Parameter(typeof(DbCommand), "command");
+            var targetParamType = parameters[0].ParameterType;
+            var castParam = Expression.Convert(inputParam, targetParamType);
+            var body = Expression.Call(mi, castParam);
+            var lambda = Expression.Lambda<Action<DbCommand>>(body, inputParam);
+            var method = lambda.Compile();
+            return method;
         }
 
         private void DeriveParameters(DbCommand discoveryCommand)
         {
-            if (_miDeriveParameters is null)
+            if (_deriveParametersMethodProxy is null)
             {
-                if (_noDeriveParametersMethod || (_miDeriveParameters = GetDeriveParametersMethod()) is null)
+                if (_noDeriveParametersMethod || (_deriveParametersMethodProxy = CreateDeriveParametersMethodProxy()) is null)
                     throw new NotSupportedException($"{_dbProviderFactory.GetType().Name} does not support parameter discovery.");
             }
-            _miDeriveParameters.Invoke(null, [discoveryCommand]);
+            _deriveParametersMethodProxy(discoveryCommand);
         }
 
         public void DiscoverParameters(DbCommand command)
