@@ -63,7 +63,7 @@ namespace DAABLike
 
         public string BuildParameterName(string name) => name;
 
-        public static void ClearParameterCache() { }
+        public static void ClearParameterCache() => ParameterCache.Clear();
 
         private DbCommand CreateCommand(CommandType commandType, string commandText)
         {
@@ -374,8 +374,7 @@ namespace DAABLike
             ArgumentNullException.ThrowIfNull(command);
             ArgumentNullException.ThrowIfNull(parameterValues);
 
-            // ParameterCache is not implemented.
-            DiscoverParameters(command);
+            ParameterCache.DiscoverParametersWithCache(command, this);
 
             var parameters = command.Parameters;
             int startIndex = (parameters.Count > 0 && parameters[0].Direction == ParameterDirection.ReturnValue) ? 1 : 0;
@@ -384,6 +383,68 @@ namespace DAABLike
 
             for (int i = 0; i < parameterValues.Length; i++)
                 parameters[startIndex + i].Value = parameterValues[i] ?? DBNull.Value;
+        }
+
+        private static class ParameterCache
+        {
+            private static readonly Dictionary<string, DbParameter[]> _cache = new();
+            private static readonly ReaderWriterLockSlim _lock = new();
+
+            public static void DiscoverParametersWithCache(DbCommand command, Database database)
+            {
+                string key = database.ConnectionString + ":" + command.CommandText;
+
+                DbParameter[]? cachedParameters;
+
+                _lock.EnterReadLock();
+                try
+                {
+                    _cache.TryGetValue(key, out cachedParameters);
+                }
+                finally
+                {
+                    _lock.ExitReadLock();
+                }
+
+                // ロック時間を最小にするため、外側で処理する。
+                if (cachedParameters is not null)
+                {
+                    foreach (var param in cachedParameters)
+                        command.Parameters.Add(((ICloneable)param).Clone());
+                    return;
+                }
+
+                // 複数スレッドで同じキーのパラメータを取得する可能性があるが、そのうちどれかをキャッシュすれば問題ない。
+                database.DiscoverParameters(command);
+
+                var sourceParams = command.Parameters;
+                cachedParameters = new DbParameter[sourceParams.Count];
+                for (int i = 0; i < cachedParameters.Length; i++)
+                    cachedParameters[i] = (DbParameter)((ICloneable)sourceParams[i]).Clone();
+
+                _lock.EnterWriteLock();
+                try
+                {
+                    _cache[key] = cachedParameters;
+                }
+                finally
+                {
+                    _lock.ExitWriteLock();
+                }
+            }
+
+            public static void Clear()
+            {
+                _lock.EnterWriteLock();
+                try
+                {
+                    _cache.Clear();
+                }
+                finally
+                {
+                    _lock.ExitWriteLock();
+                }
+            }
         }
 
         public DbCommand GetStoredProcCommandWithSourceColumns(string storedProcedureName, params string[] sourceColumns)
