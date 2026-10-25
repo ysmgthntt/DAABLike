@@ -95,16 +95,32 @@ namespace DAABLike
             }
         }
 
-        public bool SupportsParameterDiscovery => true;
+        public bool SupportsParameterDiscovery
+            => _miDeriveParameters is not null ? true
+            : _noDeriveParametersMethod ? false
+            : (_miDeriveParameters = GetDeriveParametersMethod()) is not null;
 
-        private void DeriveParameters(DbCommand discoveryCommand)
+        private bool _noDeriveParametersMethod;
+        private MethodInfo? _miDeriveParameters;
+
+        private MethodInfo? GetDeriveParametersMethod()
         {
             var cb = _dbProviderFactory.CreateCommandBuilder()!;
             var t = cb.GetType();
             var mi = t.GetMethod("DeriveParameters", BindingFlags.Public | BindingFlags.Static);
             if (mi is null)
-                throw new NotSupportedException($"{t.Name} has no DeriveParameters method.");
-            mi.Invoke(cb, new[] { discoveryCommand });
+                _noDeriveParametersMethod = true;
+            return mi;
+        }
+
+        private void DeriveParameters(DbCommand discoveryCommand)
+        {
+            if (_miDeriveParameters is null)
+            {
+                if (_noDeriveParametersMethod || (_miDeriveParameters = GetDeriveParametersMethod()) is null)
+                    throw new NotSupportedException($"{_dbProviderFactory.GetType().Name} does not support parameter discovery.");
+            }
+            _miDeriveParameters.Invoke(null, [discoveryCommand]);
         }
 
         public void DiscoverParameters(DbCommand command)
