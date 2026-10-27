@@ -2,16 +2,32 @@
 
 namespace DAABLike
 {
-    public sealed class DatabaseProviderFactory
+    public sealed class DatabaseProviderFactory : IDatabaseProviderFactory
     {
+        private readonly string _defaultName;
         private readonly Dictionary<string, DatabaseRegistration> _databaseRegistrations;
 
-        internal DatabaseProviderFactory(Dictionary<string, DatabaseRegistration> databaseRegistrations)
+        public DatabaseProviderFactory() : this("DefaultConnection") { }
+
+        public DatabaseProviderFactory(string defaultName)
         {
+            ArgumentException.ThrowIfNullOrEmpty(defaultName);
+
+            _defaultName = defaultName;
+            _databaseRegistrations = new();
+#if NETFRAMEWORK
+            foreach (System.Configuration.ConnectionStringSettings css in System.Configuration.ConfigurationManager.ConnectionStrings)
+                _databaseRegistrations.Add(css.Name, new DatabaseRegistration(css.ConnectionString, css.ProviderName));
+#endif
+        }
+
+        internal DatabaseProviderFactory(string defaultName, Dictionary<string, DatabaseRegistration> databaseRegistrations)
+        {
+            _defaultName = defaultName;
             _databaseRegistrations = databaseRegistrations;
         }
 
-        public Database CreateDefault() => Create("");
+        public Database CreateDefault() => Create(_defaultName);
 
         public Database Create(string name)
         {

@@ -33,6 +33,6 @@ namespace DAABLike
         }
 
         public DatabaseProviderFactory Build()
-            => new DatabaseProviderFactory(_databaseRegistrations);
+            => new DatabaseProviderFactory("", _databaseRegistrations);
     }
 }

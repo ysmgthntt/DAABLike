@@ -2,20 +2,28 @@
 {
     public static class DatabaseFactory
     {
-        private static Func<Database>? _createDefaultDatabase;
-        private static Func<string, Database>? _createNamedDatabase;
+        private static IDatabaseProviderFactory? _factory;
 
         public static Database CreateDatabase()
-            => _createDefaultDatabase!();
+        {
+            _factory ??= new DatabaseProviderFactory();
+            return _factory.CreateDefault();
+        }
 
         public static Database CreateDatabase(string name)
-            => _createNamedDatabase!(name);
+        {
+            _factory ??= new DatabaseProviderFactory();
+            return _factory.Create(name);
+        }
 
         public static void SetDatabaseProviderFactory(DatabaseProviderFactory factory, bool throwIfSet = true)
         {
             ArgumentNullException.ThrowIfNull(factory);
 
-            SetDatabases(factory.CreateDefault, factory.Create, throwIfSet);
+            if (throwIfSet && _factory is not null)
+                throw new InvalidOperationException("Already set.");
+
+            _factory = factory;
         }
 
         public static void SetDatabases(Func<Database> createDefaultDatabase, Func<string, Database> createNamedDatabase, bool throwIfSet = true)
@@ -23,17 +31,21 @@
             ArgumentNullException.ThrowIfNull(createDefaultDatabase);
             ArgumentNullException.ThrowIfNull(createNamedDatabase);
 
-            if (throwIfSet && _createDefaultDatabase is not null && _createNamedDatabase is not null)
+            if (throwIfSet && _factory is not null)
                 throw new InvalidOperationException("Already set.");
 
-            _createDefaultDatabase = createDefaultDatabase;
-            _createNamedDatabase = createNamedDatabase;
+            _factory = new FuncFactory(createDefaultDatabase, createNamedDatabase);
+        }
+
+        private sealed class FuncFactory(Func<Database> createDefaultDatabase, Func<string, Database> createNamedDatabase) : IDatabaseProviderFactory
+        {
+            public Database CreateDefault() => createDefaultDatabase();
+            public Database Create(string name) => createNamedDatabase(name);
         }
 
         public static void ClearDatabaseProviderFactory()
         {
-            _createDefaultDatabase = null;
-            _createNamedDatabase = null;
+            _factory = null;
         }
     }
 }
