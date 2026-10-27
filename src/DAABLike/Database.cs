@@ -568,12 +568,9 @@ namespace DAABLike
                 return rowsAffected;
             }
 
-            if (insertCommand is not null)
-                insertCommand.Connection = connection;
-            if (updateCommand is not null)
-                updateCommand.Connection = connection;
-            if (deleteCommand is not null)
-                deleteCommand.Connection = connection;
+            insertCommand?.Connection = connection;
+            updateCommand?.Connection = connection;
+            deleteCommand?.Connection = connection;
 
             return DoUpdateDataSet(updateBehavior, dataSet, tableName, insertCommand, updateCommand, deleteCommand, updateBatchSize);
         }
@@ -626,12 +623,9 @@ namespace DAABLike
             if (updateBatchSize is not null)
             {
                 adapter.UpdateBatchSize = updateBatchSize.Value;
-                if (insertCommand is not null)
-                    insertCommand.UpdatedRowSource = UpdateRowSource.None;
-                if (updateCommand is not null)
-                    updateCommand.UpdatedRowSource = UpdateRowSource.None;
-                if (deleteCommand is not null)
-                    deleteCommand.UpdatedRowSource = UpdateRowSource.None;
+                insertCommand?.UpdatedRowSource = UpdateRowSource.None;
+                updateCommand?.UpdatedRowSource = UpdateRowSource.None;
+                deleteCommand?.UpdatedRowSource = UpdateRowSource.None;
             }
 
             return adapter.Update(dataSet.Tables[tableName]!);
