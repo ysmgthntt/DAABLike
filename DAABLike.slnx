@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/sandbox/">
+    <Project Path="sandbox/ConsoleAppNet8/ConsoleAppNet8.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/DAABLike/DAABLike.csproj" />
+  </Folder>
+</Solution>
