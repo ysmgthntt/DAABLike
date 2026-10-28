@@ -107,7 +107,7 @@ namespace DAABLike
         {
             var cb = _dbProviderFactory.CreateCommandBuilder()!;
             var t = cb.GetType();
-            var mi = t.GetMethod("DeriveParameters", BindingFlags.Public | BindingFlags.Static);
+            var mi = t.GetMethod(nameof(DeriveParameters), BindingFlags.Public | BindingFlags.Static);
             if (mi is null)
             {
                 _noDeriveParametersMethod = true;
