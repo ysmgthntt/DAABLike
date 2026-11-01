@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using System.Data;
 using System.Data.Common;
 
+#pragma warning disable CA2007
+
 Console.WriteLine("Hello, World!");
 
 

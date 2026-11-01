@@ -17,3 +17,6 @@ dotnet_diagnostic.CSIsNull002.severity = error
 
 # CA2016: 'CancellationToken' パラメーターをメソッドに転送する
 dotnet_diagnostic.CA2016.severity = error
+
+# CA2007: 待機中のタスクでの ConfigureAwait の呼び出しを検討してください
+dotnet_diagnostic.CA2007.severity = error
