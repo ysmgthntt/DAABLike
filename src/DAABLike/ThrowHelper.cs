@@ -8,16 +8,20 @@ internal static class ANE
 
     extension(ArgumentException)
     {
-        public static void ThrowIfNullOrEmpty(/*[NotNull]*/ string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        public static void ThrowIfNullOrEmpty([NotNull] string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         {
+#if !NETFRAMEWORK
             if (string.IsNullOrEmpty(argument))
+#else
+            if (argument is null || argument.Length == 0)
+#endif
             {
                 ThrowNullOrEmptyException(argument, paramName);
             }
         }
     }
 
-    //[DoesNotReturn]
+    [DoesNotReturn]
     private static void ThrowNullOrEmptyException(string? argument, string? paramName)
     {
         ArgumentNullException.ThrowIfNull(argument, paramName);
@@ -28,7 +32,7 @@ internal static class ANE
 
     extension(ArgumentNullException)
     {
-        public static void ThrowIfNull(/*[NotNull]*/ object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        public static void ThrowIfNull([NotNull] object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         {
             if (argument is null)
             {
@@ -37,10 +41,12 @@ internal static class ANE
         }
     }
 
-    //[DoesNotReturn]
+    [DoesNotReturn]
     private static void Throw(string? paramName) =>
         throw new ArgumentNullException(paramName);
 }
+
+#pragma warning disable IDE0130
 
 namespace System.Runtime.CompilerServices
 {
@@ -55,4 +61,14 @@ namespace System.Runtime.CompilerServices
         public string ParameterName { get; }
     }
 }
+#if NETFRAMEWORK
+namespace System.Diagnostics.CodeAnalysis
+{
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited = false)]
+    internal sealed class NotNullAttribute : Attribute { }
+
+    [AttributeUsage(AttributeTargets.Method, Inherited = false)]
+    internal sealed class DoesNotReturnAttribute : Attribute { }
+}
+#endif
 #endif

@@ -4,6 +4,8 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 
+#pragma warning disable CA1822, CA2100
+
 namespace DAABLike
 {
     public sealed class Database
@@ -584,6 +586,8 @@ namespace DAABLike
 
         public int UpdateDataSet(DataSet dataSet, string tableName, DbCommand? insertCommand, DbCommand? updateCommand, DbCommand? deleteCommand, DbTransaction transaction, int? updateBatchSize)
         {
+            ArgumentNullException.ThrowIfNull(transaction);
+
             if (insertCommand is not null)
             {
                 insertCommand.Connection = transaction.Connection;
