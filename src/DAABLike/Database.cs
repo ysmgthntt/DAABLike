@@ -105,9 +105,13 @@ namespace DAABLike
 
         private Action<DbCommand>? CreateDeriveParametersMethodProxy()
         {
-            var cb = _dbProviderFactory.CreateCommandBuilder()!;
-            var t = cb.GetType();
-            var mi = t.GetMethod(nameof(DeriveParameters), BindingFlags.Public | BindingFlags.Static);
+            using var cb = _dbProviderFactory.CreateCommandBuilder();
+            if (cb is null)
+            {
+                _noDeriveParametersMethod = true;
+                return null;
+            }
+            var mi = cb.GetType().GetMethod(nameof(DeriveParameters), BindingFlags.Public | BindingFlags.Static);
             if (mi is null)
             {
                 _noDeriveParametersMethod = true;
