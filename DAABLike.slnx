@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/sandbox/">
+    <Project Path="sandbox/ConsoleAppNet11/ConsoleAppNet11.csproj" Id="ce657d4e-7d9b-4536-ba97-ff1236167bd7" />
     <Project Path="sandbox/ConsoleAppNet35/ConsoleAppNet35.csproj" />
     <Project Path="sandbox/ConsoleAppNet8/ConsoleAppNet8.csproj" />
   </Folder>
