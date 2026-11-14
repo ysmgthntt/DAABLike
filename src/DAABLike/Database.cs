@@ -69,6 +69,8 @@ namespace DAABLike
 
         private DbCommand CreateCommand(CommandType commandType, string commandText)
         {
+            ArgumentException.ThrowIfNullOrEmpty(commandText);
+
             var command = _dbProviderFactory.CreateCommand()!;
             command.CommandType = commandType;
             command.CommandText = commandText;
