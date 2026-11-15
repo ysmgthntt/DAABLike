@@ -11,6 +11,7 @@
     <Project Path="src/DAABLike/DAABLike.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/DAABLike.Tests.Net35/DAABLike.Tests.Net35.csproj" Id="abe733ce-cf3a-4907-8d42-31b3548af282" />
     <Project Path="tests/DAABLike.Tests/DAABLike.Tests.csproj" Id="2d3b748b-982e-4913-bf31-601f50f6df1e" />
   </Folder>
 </Solution>

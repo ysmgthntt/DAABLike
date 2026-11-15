@@ -1,4 +1,8 @@
-﻿using Microsoft.Data.SqlClient;
+﻿#if !NET35
+using Microsoft.Data.SqlClient;
+#else
+using System.Data.SqlClient;
+#endif
 
 namespace DAABLike.Tests
 {

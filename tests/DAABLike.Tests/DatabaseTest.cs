@@ -1,6 +1,10 @@
-﻿using Microsoft.Data.SqlClient;
-using System.Data;
+﻿using System.Data;
 using System.Data.Common;
+#if !NET35
+using Microsoft.Data.SqlClient;
+#else
+using System.Data.SqlClient;
+#endif
 
 namespace DAABLike.Tests
 {
@@ -176,10 +180,10 @@ namespace DAABLike.Tests
         {
             using var command = new SqlCommand();
             var db = new Database("test", SqlClientFactory.Instance);
-            db.AddParameter(command, "@ParamName1", DbType.Date, ParameterDirection.Input, null, DataRowVersion.Original, new DateTime(2026, 11, 12));
+            db.AddParameter(command, "@ParamName1", DbType.DateTime, ParameterDirection.Input, null, DataRowVersion.Original, new DateTime(2026, 11, 12));
             var param = (DbParameter)Assert.Single(command.Parameters)!;
             Assert.Equal("@ParamName1", param.ParameterName);
-            Assert.Equal(DbType.Date, param.DbType);
+            Assert.Equal(DbType.DateTime, param.DbType);
             Assert.Equal(0, param.Size);
             Assert.Equal(ParameterDirection.Input, param.Direction);
             Assert.False(param.IsNullable);
@@ -189,11 +193,11 @@ namespace DAABLike.Tests
             Assert.Equal(DataRowVersion.Original, param.SourceVersion);
             Assert.Equal(new DateTime(2026, 11, 12), param.Value);
 
-            db.AddParameter(command, "@ParamName2", DbType.Time, ParameterDirection.Output, "Column2", DataRowVersion.Current, null);
+            db.AddParameter(command, "@ParamName2", DbType.DateTime2, ParameterDirection.Output, "Column2", DataRowVersion.Current, null);
             Assert.Equal(2, command.Parameters.Count);
             param = command.Parameters[1];
             Assert.Equal("@ParamName2", param.ParameterName);
-            Assert.Equal(DbType.Time, param.DbType);
+            Assert.Equal(DbType.DateTime2, param.DbType);
             Assert.Equal(0, param.Size);
             Assert.Equal(ParameterDirection.Output, param.Direction);
             Assert.False(param.IsNullable);

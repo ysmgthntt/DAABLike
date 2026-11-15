@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net35</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>15.0</LangVersion>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Remove="System.Net.Http" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\DAABLike.Tests\DatabaseAccessTest.cs" Link="DatabaseAccessTest.cs" />
+    <Compile Include="..\DAABLike.Tests\DatabaseFactoryTest.cs" Link="DatabaseFactoryTest.cs" />
+    <Compile Include="..\DAABLike.Tests\DatabaseProviderFactoryBuilderTest.cs" Link="DatabaseProviderFactoryBuilderTest.cs" />
+    <Compile Include="..\DAABLike.Tests\DatabaseProviderFactoryTest.cs" Link="DatabaseProviderFactoryTest.cs" />
+    <Compile Include="..\DAABLike.Tests\DatabaseTest.cs" Link="DatabaseTest.cs" />
+    <Compile Include="..\DAABLike.Tests\ExecuteTest.cs" Link="ExecuteTest.cs" />
+    <Compile Include="..\DAABLike.Tests\LoadDataSetTest.cs" Link="LoadDataSetTest.cs" />
+    <Compile Include="..\DAABLike.Tests\ParameterCacheTest.cs" Link="ParameterCacheTest.cs" />
+    <Compile Include="..\DAABLike.Tests\UpdateDataSetTest.cs" Link="UpdateDataSetTest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AsyncBridge" Version="0.3.1" />
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <!--
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    -->
+    <PackageReference Include="xunit" Version="1.9.2" />
+    <PackageReference Include="xunit.extensions" Version="1.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DAABLike\DAABLike.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="Xunit.Extensions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="App.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

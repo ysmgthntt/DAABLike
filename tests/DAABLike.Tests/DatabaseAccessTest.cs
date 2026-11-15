@@ -1,12 +1,29 @@
-﻿using Microsoft.Data.SqlClient;
-using System.Data;
+﻿using System.Data;
 using System.Data.Common;
+#if !NET35
+using Microsoft.Data.SqlClient;
+#else
+using System.Data.SqlClient;
+#endif
 
 namespace DAABLike.Tests
 {
-    public partial class DatabaseAccessTest(SqlServerFixture fixture) : IClassFixture<SqlServerFixture>
+    public partial class DatabaseAccessTest
+#if !NET35
+        (SqlServerFixture fixture) : IClassFixture<SqlServerFixture>
+#else
+        : IUseFixture<DAABLike.Tests.Net35.SqlServerFixture>
+#endif
     {
+#if !NET35
         private string ConnectionString { get; } = fixture.ConnectionString;
+#else
+        private string ConnectionString { get; set; } = "";
+        public void SetFixture(DAABLike.Tests.Net35.SqlServerFixture fixture)
+        {
+            ConnectionString = fixture.ConnectionString;
+        }
+#endif
 
         private static void AssertGetTestTableDataParameters(DbCommand command)
         {
