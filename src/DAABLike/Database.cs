@@ -8,11 +8,19 @@ using System.Reflection;
 
 namespace DAABLike
 {
+    /// <summary>
+    /// Provides methods for executing database commands and managing database operations.
+    /// </summary>
     public sealed class Database
     {
         private readonly string _connectionString;
         private readonly DbProviderFactory _dbProviderFactory;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Database"/> class.
+        /// </summary>
+        /// <param name="connectionString">The connection string used to connect to the database.</param>
+        /// <param name="dbProviderFactory">The provider factory used to create database connections and commands.</param>
         public Database(string connectionString, DbProviderFactory dbProviderFactory)
         {
             ArgumentException.ThrowIfNullOrEmpty(connectionString);
@@ -22,23 +30,72 @@ namespace DAABLike
             _dbProviderFactory = dbProviderFactory;
         }
 
+        /// <summary>
+        /// Gets the connection string used to connect to the database.
+        /// </summary>
         public string ConnectionString => _connectionString;
+
+        /// <summary>
+        /// Gets the provider factory used to create database connections and commands.
+        /// </summary>
         public DbProviderFactory DbProviderFactory => _dbProviderFactory;
 
         #region AddParameter
 
+        /// <summary>
+        /// Adds an input parameter to the specified command.
+        /// </summary>
+        /// <param name="command">The command to which the parameter is added.</param>
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="dbType">The data type of the parameter.</param>
         public void AddInParameter(DbCommand command, string name, DbType dbType)
             => AddParameter(command, name, dbType, ParameterDirection.Input, "", DataRowVersion.Default, null);
 
+        /// <summary>
+        /// Adds an input parameter with the specified value to the specified command.
+        /// </summary>
+        /// <param name="command">The command to which the parameter is added.</param>
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="dbType">The data type of the parameter.</param>
+        /// <param name="value">The value of the parameter.</param>
         public void AddInParameter(DbCommand command, string name, DbType dbType, object? value)
             => AddParameter(command, name, dbType, ParameterDirection.Input, "", DataRowVersion.Default, value);
 
+        /// <summary>
+        /// Adds an input parameter with the specified source column information to the specified command.
+        /// </summary>
+        /// <param name="command">The command to which the parameter is added.</param>
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="dbType">The data type of the parameter.</param>
+        /// <param name="sourceColumn">The source column mapped to the parameter.</param>
+        /// <param name="sourceVersion">The <see cref="System.Data.DataRowVersion"/> used when retrieving the parameter value.</param>
         public void AddInParameter(DbCommand command, string name, DbType dbType, string? sourceColumn, DataRowVersion sourceVersion)
             => AddParameter(command, name, dbType, 0, ParameterDirection.Input, true, 0, 0, sourceColumn, sourceVersion, null);
 
+        /// <summary>
+        /// Adds an output parameter to the specified command.
+        /// </summary>
+        /// <param name="command">The command to which the parameter is added.</param>
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="dbType">The data type of the parameter.</param>
+        /// <param name="size">The maximum size of the parameter.</param>
         public void AddOutParameter(DbCommand command, string name, DbType dbType, int size)
             => AddParameter(command, name, dbType, size, ParameterDirection.Output, true, 0, 0, "", DataRowVersion.Default, DBNull.Value);
 
+        /// <summary>
+        /// Adds a parameter with the specified settings to the specified command.
+        /// </summary>
+        /// <param name="command">The command to which the parameter is added.</param>
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="dbType">The data type of the parameter.</param>
+        /// <param name="size">The maximum size of the parameter.</param>
+        /// <param name="direction">The direction of the parameter.</param>
+        /// <param name="nullable"><see langword="true"/> if the parameter accepts null values; otherwise, <see langword="false"/>.</param>
+        /// <param name="precision">The precision of the parameter.</param>
+        /// <param name="scale">The scale of the parameter.</param>
+        /// <param name="sourceColumn">The source column mapped to the parameter.</param>
+        /// <param name="sourceVersion">The <see cref="System.Data.DataRowVersion"/> used when retrieving the parameter value.</param>
+        /// <param name="value">The value of the parameter.</param>
         public void AddParameter(DbCommand command, string name, DbType dbType, int size, ParameterDirection direction, bool nullable, byte precision, byte scale, string? sourceColumn, DataRowVersion sourceVersion, object? value)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -58,13 +115,35 @@ namespace DAABLike
             command.Parameters.Add(param);
         }
 
+        /// <summary>
+        /// Adds a parameter with the specified settings to the specified command.
+        /// </summary>
+        /// <param name="command">The command to which the parameter is added.</param>
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="dbType">The data type of the parameter.</param>
+        /// <param name="direction">The direction of the parameter.</param>
+        /// <param name="sourceColumn">The source column mapped to the parameter.</param>
+        /// <param name="sourceVersion">The <see cref="System.Data.DataRowVersion"/> used when retrieving the parameter value.</param>
+        /// <param name="value">The value of the parameter.</param>
         public void AddParameter(DbCommand command, string name, DbType dbType, ParameterDirection direction, string? sourceColumn, DataRowVersion sourceVersion, object? value)
             => AddParameter(command, name, dbType, 0, direction, false, 0, 0, sourceColumn, sourceVersion, value);
 
         #endregion
 
+        /// <summary>
+        /// Returns the specified parameter name without modification.
+        /// </summary>
+        /// <param name="name">The parameter name.</param>
+        /// <returns>The specified parameter name.</returns>
         public string BuildParameterName(string name) => name;
 
+        /// <summary>
+        /// Clears the cached stored procedure parameter definitions.
+        /// </summary>
+        /// <remarks>
+        /// Parameter definitions retrieved by <see cref="AssignParameters"/> are cached internally.
+        /// Call this method to clear the cache.
+        /// </remarks>
         public static void ClearParameterCache() => ParameterCache.Clear();
 
         private DbCommand CreateCommand(CommandType commandType, string commandText)
@@ -77,6 +156,11 @@ namespace DAABLike
             return command;
         }
 
+        /// <summary>
+        /// Creates a database connection using the configured connection string.
+        /// The connection is not opened automatically.
+        /// </summary>
+        /// <returns>A new, unopened database connection.</returns>
         public DbConnection CreateConnection()
         {
             var connection = _dbProviderFactory.CreateConnection()!;
@@ -99,6 +183,9 @@ namespace DAABLike
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the database provider supports parameter discovery.
+        /// </summary>
         public bool SupportsParameterDiscovery
             => _deriveParametersMethodProxy is not null ? true
             : _noDeriveParametersMethod ? false
@@ -149,6 +236,11 @@ namespace DAABLike
             _deriveParametersMethodProxy(discoveryCommand);
         }
 
+        /// <summary>
+        /// Discovers the parameters of the stored procedure specified by the command
+        /// and adds them to the command.
+        /// </summary>
+        /// <param name="command">The command representing the stored procedure.</param>
         public void DiscoverParameters(DbCommand command)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -163,6 +255,11 @@ namespace DAABLike
 
         #region ExecuteDataSet
 
+        /// <summary>
+        /// Executes the specified command and returns the results in a <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <returns>A <see cref="System.Data.DataSet"/> containing the query results.</returns>
         public DataSet ExecuteDataSet(DbCommand command)
         {
             var dataSet = new DataSet();
@@ -171,6 +268,13 @@ namespace DAABLike
             return dataSet;
         }
 
+        /// <summary>
+        /// Executes the specified command within the given transaction and returns the results
+        /// in a <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <returns>A <see cref="System.Data.DataSet"/> containing the query results.</returns>
         public DataSet ExecuteDataSet(DbCommand command, DbTransaction transaction)
         {
             var dataSet = new DataSet();
@@ -179,24 +283,52 @@ namespace DAABLike
             return dataSet;
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure and returns the results in a <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The parameter values to assign to the stored procedure, in parameter order.</param>
+        /// <returns>A <see cref="System.Data.DataSet"/> containing the query results.</returns>
         public DataSet ExecuteDataSet(string storedProcedureName, params object[] parameterValues)
         {
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
             return ExecuteDataSet(command);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure within the given transaction and returns
+        /// the results in a <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the stored procedure.</param>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The parameter values to assign to the stored procedure, in parameter order.</param>
+        /// <returns>A <see cref="System.Data.DataSet"/> containing the query results.</returns>
         public DataSet ExecuteDataSet(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
         {
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
             return ExecuteDataSet(command, transaction);
         }
 
+        /// <summary>
+        /// Executes the specified command and returns the results in a <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text to execute.</param>
+        /// <returns>A <see cref="System.Data.DataSet"/> containing the query results.</returns>
         public DataSet ExecuteDataSet(CommandType commandType, string commandText)
         {
             using var command = CreateCommand(commandType, commandText);
             return ExecuteDataSet(command);
         }
 
+        /// <summary>
+        /// Executes the specified command within the given transaction and returns the results
+        /// in a <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text to execute.</param>
+        /// <returns>A <see cref="System.Data.DataSet"/> containing the query results.</returns>
         public DataSet ExecuteDataSet(DbTransaction transaction, CommandType commandType, string commandText)
         {
             using var command = CreateCommand(commandType, commandText);
@@ -207,6 +339,11 @@ namespace DAABLike
 
         #region ExecuteNonQuery
 
+        /// <summary>
+        /// Executes the specified command.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <returns>The number of rows affected.</returns>
         public int ExecuteNonQuery(DbCommand command)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -216,6 +353,12 @@ namespace DAABLike
             return command.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Executes the specified command within the given transaction.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <returns>The number of rows affected.</returns>
         public int ExecuteNonQuery(DbCommand command, DbTransaction transaction)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -226,24 +369,50 @@ namespace DAABLike
             return command.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure.
+        /// </summary>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The parameter values to assign to the stored procedure, in parameter order.</param>
+        /// <returns>The number of rows affected.</returns>
         public int ExecuteNonQuery(string storedProcedureName, params object[] parameterValues)
         {
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
             return ExecuteNonQuery(command);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure within the given transaction.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the stored procedure.</param>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The parameter values to assign to the stored procedure, in parameter order.</param>
+        /// <returns>The number of rows affected.</returns>
         public int ExecuteNonQuery(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
         {
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
             return ExecuteNonQuery(command, transaction);
         }
 
+        /// <summary>
+        /// Executes the specified command.
+        /// </summary>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text to execute.</param>
+        /// <returns>The number of rows affected.</returns>
         public int ExecuteNonQuery(CommandType commandType, string commandText)
         {
             using var command = CreateCommand(commandType, commandText);
             return ExecuteNonQuery(command);
         }
 
+        /// <summary>
+        /// Executes the specified command within the given transaction.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text to execute.</param>
+        /// <returns>The number of rows affected.</returns>
         public int ExecuteNonQuery(DbTransaction transaction, CommandType commandType, string commandText)
         {
             using var command = CreateCommand(commandType, commandText);
@@ -254,6 +423,14 @@ namespace DAABLike
 
         #region ExecuteReader
 
+        /// <summary>
+        /// Executes the specified command and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is automatically closed when the data reader is closed.
+        /// </remarks>
+        /// <param name="command">The command to execute.</param>
+        /// <returns>A data reader containing the query results.</returns>
         public IDataReader ExecuteReader(DbCommand command)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -262,6 +439,16 @@ namespace DAABLike
             return command.ExecuteReader(CommandBehavior.CloseConnection);
         }
 
+        /// <summary>
+        /// Executes the specified command within the given transaction and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is not automatically closed when the data reader is closed.
+        /// The caller is responsible for managing the connection lifecycle.
+        /// </remarks>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <returns>A data reader containing the query results.</returns>
         public IDataReader ExecuteReader(DbCommand command, DbTransaction transaction)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -272,24 +459,64 @@ namespace DAABLike
             return command.ExecuteReader();
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is automatically closed when the data reader is closed.
+        /// </remarks>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>A data reader containing the query results.</returns>
         public IDataReader ExecuteReader(string storedProcedureName, params object[] parameterValues)
         {
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
             return ExecuteReader(command);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure within the given transaction and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is not automatically closed when the data reader is closed.
+        /// The caller is responsible for managing the connection lifecycle.
+        /// </remarks>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>A data reader containing the query results.</returns>
         public IDataReader ExecuteReader(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
         {
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
             return ExecuteReader(command, transaction);
         }
 
+        /// <summary>
+        /// Executes the specified command and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is automatically closed when the data reader is closed.
+        /// </remarks>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <returns>A data reader containing the query results.</returns>
         public IDataReader ExecuteReader(CommandType commandType, string commandText)
         {
             using var command = CreateCommand(commandType, commandText);
             return ExecuteReader(command);
         }
 
+        /// <summary>
+        /// Executes the specified command within the given transaction and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is not automatically closed when the data reader is closed.
+        /// The caller is responsible for managing the connection lifecycle.
+        /// </remarks>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <returns>A data reader containing the query results.</returns>
         public IDataReader ExecuteReader(DbTransaction transaction, CommandType commandType, string commandText)
         {
             using var command = CreateCommand(commandType, commandText);
@@ -300,6 +527,14 @@ namespace DAABLike
 
         #region ExecuteScalar
 
+        /// <summary>
+        /// Executes the specified command and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <returns>
+        /// The first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public object? ExecuteScalar(DbCommand command)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -309,6 +544,15 @@ namespace DAABLike
             return command.ExecuteScalar();
         }
 
+        /// <summary>
+        /// Executes the specified command within the given transaction and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <returns>
+        /// The first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public object? ExecuteScalar(DbCommand command, DbTransaction transaction)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -319,24 +563,62 @@ namespace DAABLike
             return command.ExecuteScalar();
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>
+        /// The first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public object? ExecuteScalar(string storedProcedureName, params object[] parameterValues)
         {
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
             return ExecuteScalar(command);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure within the given transaction and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>
+        /// The first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public object? ExecuteScalar(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
         {
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
             return ExecuteScalar(command, transaction);
         }
 
+        /// <summary>
+        /// Executes the specified command and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <returns>
+        /// The first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public object? ExecuteScalar(CommandType commandType, string commandText)
         {
             using var command = CreateCommand(commandType, commandText);
             return ExecuteScalar(command);
         }
 
+        /// <summary>
+        /// Executes the specified command within the given transaction and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <returns>
+        /// The first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public object? ExecuteScalar(DbTransaction transaction, CommandType commandType, string commandText)
         {
             using var command = CreateCommand(commandType, commandText);
@@ -345,8 +627,18 @@ namespace DAABLike
 
         #endregion
 
+        /// <summary>
+        /// Creates a database adapter.
+        /// </summary>
+        /// <returns>A new database adapter.</returns>
         public DbDataAdapter GetDataAdapter() => _dbProviderFactory.CreateDataAdapter()!;
 
+        /// <summary>
+        /// Gets the value of the specified parameter from the command.
+        /// </summary>
+        /// <param name="command">The command containing the parameter.</param>
+        /// <param name="name">The name of the parameter.</param>
+        /// <returns>The value of the specified parameter.</returns>
         public object? GetParameterValue(DbCommand command, string name)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -354,6 +646,11 @@ namespace DAABLike
             return command.Parameters[name].Value;
         }
 
+        /// <summary>
+        /// Creates a command for executing the specified SQL query.
+        /// </summary>
+        /// <param name="query">The SQL query to execute.</param>
+        /// <returns>A command configured to execute the specified query.</returns>
         public DbCommand GetSqlStringCommand(string query)
         {
             ArgumentException.ThrowIfNullOrEmpty(query);
@@ -361,6 +658,11 @@ namespace DAABLike
             return CreateCommand(CommandType.Text, query);
         }
 
+        /// <summary>
+        /// Creates a command for executing the specified stored procedure.
+        /// </summary>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <returns>A command configured to execute the specified stored procedure.</returns>
         public DbCommand GetStoredProcCommand(string storedProcedureName)
         {
             ArgumentException.ThrowIfNullOrEmpty(storedProcedureName);
@@ -368,6 +670,12 @@ namespace DAABLike
             return CreateCommand(CommandType.StoredProcedure, storedProcedureName);
         }
 
+        /// <summary>
+        /// Creates a command for executing the specified stored procedure and assigns the specified parameter values.
+        /// </summary>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>A command configured to execute the specified stored procedure.</returns>
         public DbCommand GetStoredProcCommand(string storedProcedureName, params object[] parameterValues)
         {
             ArgumentException.ThrowIfNullOrEmpty(storedProcedureName);
@@ -377,6 +685,18 @@ namespace DAABLike
             return command;
         }
 
+        /// <summary>
+        /// Discovers the parameters of the stored procedure specified by the command
+        /// and assigns the specified values to them in order.
+        /// </summary>
+        /// <param name="command">
+        /// The command representing the stored procedure.
+        /// The <see cref="System.Data.Common.DbCommand.CommandType"/>
+        /// must be <see cref="System.Data.CommandType.StoredProcedure"/>.
+        /// </param>
+        /// <param name="parameterValues">
+        /// The values to assign to the discovered parameters, in parameter order.
+        /// </param>
         public void AssignParameters(DbCommand command, object[] parameterValues)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -455,6 +775,12 @@ namespace DAABLike
             }
         }
 
+        /// <summary>
+        /// Creates a command for executing the specified stored procedure and associates the specified source columns with its parameters.
+        /// </summary>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="sourceColumns">The source column names to associate with the stored procedure parameters, in parameter order.</param>
+        /// <returns>A command configured to execute the specified stored procedure.</returns>
         public DbCommand GetStoredProcCommandWithSourceColumns(string storedProcedureName, params string[] sourceColumns)
         {
             ArgumentException.ThrowIfNullOrEmpty(storedProcedureName);
@@ -484,12 +810,31 @@ namespace DAABLike
 
         #region LoadDataSet
 
+        /// <summary>
+        /// Executes the specified command and loads the result into the specified <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="dataSet">The data set into which the result is loaded.</param>
+        /// <param name="tableName">The name of the table into which the result is loaded.</param>
         public void LoadDataSet(DbCommand command, DataSet dataSet, string tableName)
             => LoadDataSet(command, dataSet, new[] { tableName });
 
+        /// <summary>
+        /// Executes the specified command within the given transaction and loads the result into the specified <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="dataSet">The data set into which the result is loaded.</param>
+        /// <param name="tableName">The name of the table into which the result is loaded.</param>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
         public void LoadDataSet(DbCommand command, DataSet dataSet, string tableName, DbTransaction transaction)
             => LoadDataSet(command, dataSet, new[] { tableName }, transaction);
 
+        /// <summary>
+        /// Executes the specified command and loads the result into the specified <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="dataSet">The data set into which the results are loaded.</param>
+        /// <param name="tableNames">The names of the tables into which the results are loaded, in result set order.</param>
         public void LoadDataSet(DbCommand command, DataSet dataSet, string[] tableNames)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -499,6 +844,13 @@ namespace DAABLike
             DoLoadDataSet(command, dataSet, tableNames);
         }
 
+        /// <summary>
+        /// Executes the specified command within the given transaction and loads the results into the specified <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="dataSet">The data set into which the results are loaded.</param>
+        /// <param name="tableNames">The names of the tables into which the results are loaded, in result set order.</param>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
         public void LoadDataSet(DbCommand command, DataSet dataSet, string[] tableNames, DbTransaction transaction)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -509,24 +861,54 @@ namespace DAABLike
             DoLoadDataSet(command, dataSet, tableNames);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure and loads the results into the specified <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="dataSet">The data set into which the results are loaded.</param>
+        /// <param name="tableNames">The names of the tables into which the results are loaded, in result set order.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
         public void LoadDataSet(string storedProcedureName, DataSet dataSet, string[] tableNames, params object[] parameterValues)
         {
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
             LoadDataSet(command, dataSet, tableNames);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure within the given transaction and loads the results into the specified <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="dataSet">The data set into which the results are loaded.</param>
+        /// <param name="tableNames">The names of the tables into which the results are loaded, in result set order.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
         public void LoadDataSet(DbTransaction transaction, string storedProcedureName, DataSet dataSet, string[] tableNames, params object[] parameterValues)
         {
             using var command = GetStoredProcCommand(storedProcedureName, parameterValues);
             LoadDataSet(command, dataSet, tableNames, transaction);
         }
 
+        /// <summary>
+        /// Executes the specified command and loads the result into the specified <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="dataSet">The data set into which the results are loaded.</param>
+        /// <param name="tableNames">The names of the tables into which the results are loaded, in result set order.</param>
         public void LoadDataSet(CommandType commandType, string commandText, DataSet dataSet, string[] tableNames)
         {
             using var command = CreateCommand(commandType, commandText);
             LoadDataSet(command, dataSet, tableNames);
         }
 
+        /// <summary>
+        /// Executes the specified command within the given transaction and loads the results into the specified <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="dataSet">The data set into which the results are loaded.</param>
+        /// <param name="tableNames">The names of the tables into which the results are loaded, in result set order.</param>
         public void LoadDataSet(DbTransaction transaction, CommandType commandType, string commandText, DataSet dataSet, string[] tableNames)
         {
             using var command = CreateCommand(commandType, commandText);
@@ -556,6 +938,12 @@ namespace DAABLike
 
         #endregion
 
+        /// <summary>
+        /// Sets the value of the specified parameter in the command.
+        /// </summary>
+        /// <param name="command">The command containing the parameter.</param>
+        /// <param name="parameterName">The name of the parameter.</param>
+        /// <param name="value">The value to assign to the parameter.</param>
         public void SetParameterValue(DbCommand command, string parameterName, object? value)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -565,6 +953,17 @@ namespace DAABLike
 
         #region UpdateDataSet
 
+        /// <summary>
+        /// Updates the database with the changes in the specified <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="dataSet">The data set containing the changes to apply.</param>
+        /// <param name="tableName">The name of the table in the data set to update.</param>
+        /// <param name="insertCommand">The command to execute for inserting new rows, or <see langword="null"/> if no insert operation is required.</param>
+        /// <param name="updateCommand">The command to execute for updating existing rows, or <see langword="null"/> if no update operation is required.</param>
+        /// <param name="deleteCommand">The command to execute for deleting rows, or <see langword="null"/> if no delete operation is required.</param>
+        /// <param name="updateBehavior">The behavior to apply when an error occurs during the update.</param>
+        /// <param name="updateBatchSize">The batch size to use for the update operation, or <see langword="null"/> to use the default value.</param>
+        /// <returns>The number of rows successfully updated in the database.</returns>
         public int UpdateDataSet(DataSet dataSet, string tableName, DbCommand? insertCommand, DbCommand? updateCommand, DbCommand? deleteCommand, UpdateBehavior updateBehavior, int? updateBatchSize)
         {
             using var connection = OpenConnection();
@@ -583,9 +982,30 @@ namespace DAABLike
             return DoUpdateDataSet(updateBehavior, dataSet, tableName, insertCommand, updateCommand, deleteCommand, updateBatchSize);
         }
 
+        /// <summary>
+        /// Updates the database with the changes in the specified <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="dataSet">The data set containing the changes to apply.</param>
+        /// <param name="tableName">The name of the table in the data set to update.</param>
+        /// <param name="insertCommand">The command to execute for inserting new rows, or <see langword="null"/> if no insert operation is required.</param>
+        /// <param name="updateCommand">The command to execute for updating existing rows, or <see langword="null"/> if no update operation is required.</param>
+        /// <param name="deleteCommand">The command to execute for deleting rows, or <see langword="null"/> if no delete operation is required.</param>
+        /// <param name="updateBehavior">The behavior to apply when an error occurs during the update.</param>
+        /// <returns>The number of rows successfully updated in the database.</returns>
         public int UpdateDataSet(DataSet dataSet, string tableName, DbCommand? insertCommand, DbCommand? updateCommand, DbCommand? deleteCommand, UpdateBehavior updateBehavior)
             => UpdateDataSet(dataSet, tableName, insertCommand, updateCommand, deleteCommand, updateBehavior, null);
 
+        /// <summary>
+        /// Updates the database with the changes in the specified <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="dataSet">The data set containing the changes to apply.</param>
+        /// <param name="tableName">The name of the table in the data set to update.</param>
+        /// <param name="insertCommand">The command to execute for inserting new rows, or <see langword="null"/> if no insert operation is required.</param>
+        /// <param name="updateCommand">The command to execute for updating existing rows, or <see langword="null"/> if no update operation is required.</param>
+        /// <param name="deleteCommand">The command to execute for deleting rows, or <see langword="null"/> if no delete operation is required.</param>
+        /// <param name="transaction">The transaction in which to execute the update operations.</param>
+        /// <param name="updateBatchSize">The batch size to use for the update operation, or <see langword="null"/> to use the default value.</param>
+        /// <returns>The number of rows successfully updated in the database.</returns>
         public int UpdateDataSet(DataSet dataSet, string tableName, DbCommand? insertCommand, DbCommand? updateCommand, DbCommand? deleteCommand, DbTransaction transaction, int? updateBatchSize)
         {
             ArgumentNullException.ThrowIfNull(transaction);
@@ -609,6 +1029,16 @@ namespace DAABLike
             return DoUpdateDataSet(UpdateBehavior.Transactional, dataSet, tableName, insertCommand, updateCommand, deleteCommand, updateBatchSize);
         }
 
+        /// <summary>
+        /// Updates the database with the changes in the specified <see cref="System.Data.DataSet"/>.
+        /// </summary>
+        /// <param name="dataSet">The data set containing the changes to apply.</param>
+        /// <param name="tableName">The name of the table in the data set to update.</param>
+        /// <param name="insertCommand">The command to execute for inserting new rows, or <see langword="null"/> if no insert operation is required.</param>
+        /// <param name="updateCommand">The command to execute for updating existing rows, or <see langword="null"/> if no update operation is required.</param>
+        /// <param name="deleteCommand">The command to execute for deleting rows, or <see langword="null"/> if no delete operation is required.</param>
+        /// <param name="transaction">The transaction in which to execute the update operations.</param>
+        /// <returns>The number of rows successfully updated in the database.</returns>
         public int UpdateDataSet(DataSet dataSet, string tableName, DbCommand? insertCommand, DbCommand? updateCommand, DbCommand? deleteCommand, DbTransaction transaction)
             => UpdateDataSet(dataSet, tableName, insertCommand, updateCommand, deleteCommand, transaction, null);
 
@@ -710,6 +1140,12 @@ namespace DAABLike
 
         #region ExecuteNonQueryAsync
 
+        /// <summary>
+        /// Executes the specified command asynchronously and returns the number of rows affected.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains the number of rows affected.</returns>
         public async Task<int> ExecuteNonQueryAsync(DbCommand command, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -724,6 +1160,13 @@ namespace DAABLike
             return await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified command asynchronously within the given transaction and returns the number of rows affected.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains the number of rows affected.</returns>
         public Task<int> ExecuteNonQueryAsync(DbCommand command, DbTransaction transaction, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -734,6 +1177,12 @@ namespace DAABLike
             return command.ExecuteNonQueryAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure asynchronously and returns the number of rows affected.
+        /// </summary>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains the number of rows affected.</returns>
         public async Task<int> ExecuteNonQueryAsync(string storedProcedureName, params object[] parameterValues)
         {
             var command = GetStoredProcCommand(storedProcedureName, parameterValues);
@@ -745,6 +1194,13 @@ namespace DAABLike
             return await ExecuteNonQueryAsync(command).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure asynchronously and returns the number of rows affected.
+        /// </summary>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains the number of rows affected.</returns>
         public async Task<int> ExecuteNonQueryAsync(string storedProcedureName, CancellationToken cancellationToken, params object[] parameterValues)
         {
             var command = GetStoredProcCommand(storedProcedureName, parameterValues);
@@ -756,6 +1212,13 @@ namespace DAABLike
             return await ExecuteNonQueryAsync(command, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure asynchronously within the given transaction and returns the number of rows affected.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains the number of rows affected.</returns>
         public async Task<int> ExecuteNonQueryAsync(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
         {
             var command = GetStoredProcCommand(storedProcedureName, parameterValues);
@@ -767,6 +1230,14 @@ namespace DAABLike
             return await ExecuteNonQueryAsync(command, transaction).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure asynchronously within the given transaction and returns the number of rows affected.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains the number of rows affected.</returns>
         public async Task<int> ExecuteNonQueryAsync(DbTransaction transaction, string storedProcedureName, CancellationToken cancellationToken, params object[] parameterValues)
         {
             var command = GetStoredProcCommand(storedProcedureName, parameterValues);
@@ -778,6 +1249,13 @@ namespace DAABLike
             return await ExecuteNonQueryAsync(command, transaction, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified command asynchronously and returns the number of rows affected.
+        /// </summary>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains the number of rows affected.</returns>
         public async Task<int> ExecuteNonQueryAsync(CommandType commandType, string commandText, CancellationToken cancellationToken = default)
         {
             var command = CreateCommand(commandType, commandText);
@@ -789,6 +1267,14 @@ namespace DAABLike
             return await ExecuteNonQueryAsync(command, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified command asynchronously within the given transaction and returns the number of rows affected.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains the number of rows affected.</returns>
         public async Task<int> ExecuteNonQueryAsync(DbTransaction transaction, CommandType commandType, string commandText, CancellationToken cancellationToken = default)
         {
             var command = CreateCommand(commandType, commandText);
@@ -804,6 +1290,15 @@ namespace DAABLike
 
         #region ExecuteReaderAsync
 
+        /// <summary>
+        /// Executes the specified command asynchronously and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is automatically closed when the data reader is closed.
+        /// </remarks>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a data reader with the query results.</returns>
         public async Task<DbDataReader> ExecuteReaderAsync(DbCommand command, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -812,6 +1307,17 @@ namespace DAABLike
             return await command.ExecuteReaderAsync(CommandBehavior.CloseConnection, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified command asynchronously within the given transaction and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is not automatically closed when the data reader is closed.
+        /// The caller is responsible for managing the connection lifecycle.
+        /// </remarks>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a data reader with the query results.</returns>
         public Task<DbDataReader> ExecuteReaderAsync(DbCommand command, DbTransaction transaction, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -822,6 +1328,15 @@ namespace DAABLike
             return command.ExecuteReaderAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure asynchronously and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is automatically closed when the data reader is closed.
+        /// </remarks>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a data reader with the query results.</returns>
         public async Task<DbDataReader> ExecuteReaderAsync(string storedProcedureName, params object[] parameterValues)
         {
             var command = GetStoredProcCommand(storedProcedureName, parameterValues);
@@ -833,6 +1348,16 @@ namespace DAABLike
             return await ExecuteReaderAsync(command).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure asynchronously and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is automatically closed when the data reader is closed.
+        /// </remarks>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a data reader with the query results.</returns>
         public async Task<DbDataReader> ExecuteReaderAsync(string storedProcedureName, CancellationToken cancellationToken, params object[] parameterValues)
         {
             var command = GetStoredProcCommand(storedProcedureName, parameterValues);
@@ -844,6 +1369,17 @@ namespace DAABLike
             return await ExecuteReaderAsync(command, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure asynchronously within the given transaction and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is not automatically closed when the data reader is closed.
+        /// The caller is responsible for managing the connection lifecycle.
+        /// </remarks>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a data reader with the query results.</returns>
         public async Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
         {
             var command = GetStoredProcCommand(storedProcedureName, parameterValues);
@@ -855,6 +1391,18 @@ namespace DAABLike
             return await ExecuteReaderAsync(command, transaction).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure asynchronously within the given transaction and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is not automatically closed when the data reader is closed.
+        /// The caller is responsible for managing the connection lifecycle.
+        /// </remarks>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a data reader with the query results.</returns>
         public async Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, string storedProcedureName, CancellationToken cancellationToken, params object[] parameterValues)
         {
             var command = GetStoredProcCommand(storedProcedureName, parameterValues);
@@ -866,6 +1414,16 @@ namespace DAABLike
             return await ExecuteReaderAsync(command, transaction, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified command asynchronously and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is automatically closed when the data reader is closed.
+        /// </remarks>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a data reader with the query results.</returns>
         public async Task<DbDataReader> ExecuteReaderAsync(CommandType commandType, string commandText, CancellationToken cancellationToken = default)
         {
             var command = CreateCommand(commandType, commandText);
@@ -877,6 +1435,18 @@ namespace DAABLike
             return await ExecuteReaderAsync(command, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified command asynchronously within the given transaction and returns a data reader.
+        /// </summary>
+        /// <remarks>
+        /// The connection is not automatically closed when the data reader is closed.
+        /// The caller is responsible for managing the connection lifecycle.
+        /// </remarks>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task representing the asynchronous operation. The task result contains a data reader with the query results.</returns>
         public async Task<DbDataReader> ExecuteReaderAsync(DbTransaction transaction, CommandType commandType, string commandText, CancellationToken cancellationToken = default)
         {
             var command = CreateCommand(commandType, commandText);
@@ -892,6 +1462,15 @@ namespace DAABLike
 
         #region ExecuteScalarAsync
 
+        /// <summary>
+        /// Executes the specified command asynchronously and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result contains the first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public async Task<object?> ExecuteScalarAsync(DbCommand command, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -906,6 +1485,16 @@ namespace DAABLike
             return await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified command asynchronously within the given transaction and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="command">The command to execute.</param>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result contains the first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public Task<object?> ExecuteScalarAsync(DbCommand command, DbTransaction transaction, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(command);
@@ -916,6 +1505,15 @@ namespace DAABLike
             return command.ExecuteScalarAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure asynchronously and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result contains the first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public async Task<object?> ExecuteScalarAsync(string storedProcedureName, params object[] parameterValues)
         {
             var command = GetStoredProcCommand(storedProcedureName, parameterValues);
@@ -927,6 +1525,16 @@ namespace DAABLike
             return await ExecuteScalarAsync(command).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure asynchronously and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result contains the first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public async Task<object?> ExecuteScalarAsync(string storedProcedureName, CancellationToken cancellationToken, params object[] parameterValues)
         {
             var command = GetStoredProcCommand(storedProcedureName, parameterValues);
@@ -938,6 +1546,16 @@ namespace DAABLike
             return await ExecuteScalarAsync(command, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure asynchronously within the given transaction and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result contains the first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public async Task<object?> ExecuteScalarAsync(DbTransaction transaction, string storedProcedureName, params object[] parameterValues)
         {
             var command = GetStoredProcCommand(storedProcedureName, parameterValues);
@@ -949,6 +1567,17 @@ namespace DAABLike
             return await ExecuteScalarAsync(command, transaction).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified stored procedure asynchronously within the given transaction and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="storedProcedureName">The name of the stored procedure to execute.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <param name="parameterValues">The values to assign to the stored procedure parameters, in parameter order.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result contains the first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public async Task<object?> ExecuteScalarAsync(DbTransaction transaction, string storedProcedureName, CancellationToken cancellationToken, params object[] parameterValues)
         {
             var command = GetStoredProcCommand(storedProcedureName, parameterValues);
@@ -960,6 +1589,16 @@ namespace DAABLike
             return await ExecuteScalarAsync(command, transaction, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified command asynchronously and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result contains the first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public async Task<object?> ExecuteScalarAsync(CommandType commandType, string commandText, CancellationToken cancellationToken = default)
         {
             var command = CreateCommand(commandType, commandText);
@@ -971,6 +1610,17 @@ namespace DAABLike
             return await ExecuteScalarAsync(command, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Executes the specified command asynchronously within the given transaction and returns the first column of the first row in the result set.
+        /// </summary>
+        /// <param name="transaction">The transaction in which to execute the command.</param>
+        /// <param name="commandType">The type of command to execute.</param>
+        /// <param name="commandText">The command text.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>
+        /// A task representing the asynchronous operation. The task result contains the first column of the first row in the result set, or <see langword="null"/> if the result set is empty.
+        /// Returns <see cref="System.DBNull.Value"/> if the value is a database null.
+        /// </returns>
         public async Task<object?> ExecuteScalarAsync(DbTransaction transaction, CommandType commandType, string commandText, CancellationToken cancellationToken = default)
         {
             var command = CreateCommand(commandType, commandText);
