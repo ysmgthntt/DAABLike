@@ -16,7 +16,7 @@ namespace DAABLike.Tests
             {
                 var db = new Database(ConnectionString, SqlClientFactory.Instance);
                 var rand = new Random();
-                for (int i = 0; i < 1000; i++)
+                for (int i = 0; i < 3000; i++)
                 {
                     using var command = new SqlCommand();
                     command.CommandType = CommandType.StoredProcedure;

@@ -715,6 +715,37 @@ namespace DAABLike
 
         private static class ParameterCache
         {
+            private static DbParameter[] DiscoverAndCopyParameters(DbCommand command, Database database)
+            {
+                database.DiscoverParameters(command);
+                var sourceParams = command.Parameters;
+                var parameters = new DbParameter[sourceParams.Count];
+                for (int i = 0; i < parameters.Length; i++)
+                    parameters[i] = (DbParameter)((ICloneable)sourceParams[i]).Clone();
+                return parameters;
+            }
+
+#if !NET35
+            private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, DbParameter[]> _cache = new();
+
+            public static void DiscoverParametersWithCache(DbCommand command, Database database)
+            {
+                string key = database.ConnectionString + ":" + command.CommandText;
+
+                bool discovered = false;
+                var cachedParameters = _cache.GetOrAdd(key, k =>
+                {
+                    discovered = true;
+                    return DiscoverAndCopyParameters(command, database);
+                });
+                if (discovered)
+                    return;
+                foreach (var param in cachedParameters)
+                    command.Parameters.Add(((ICloneable)param).Clone());
+            }
+
+            public static void Clear() => _cache.Clear();
+#else
             private static readonly Dictionary<string, DbParameter[]> _cache = new();
             private static readonly ReaderWriterLockSlim _lock = new();
 
@@ -743,12 +774,7 @@ namespace DAABLike
                 }
 
                 // 複数スレッドで同じキーのパラメータを取得する可能性があるが、そのうちどれかをキャッシュすれば問題ない。
-                database.DiscoverParameters(command);
-
-                var sourceParams = command.Parameters;
-                cachedParameters = new DbParameter[sourceParams.Count];
-                for (int i = 0; i < cachedParameters.Length; i++)
-                    cachedParameters[i] = (DbParameter)((ICloneable)sourceParams[i]).Clone();
+                cachedParameters = DiscoverAndCopyParameters(command, database);
 
                 _lock.EnterWriteLock();
                 try
@@ -773,6 +799,7 @@ namespace DAABLike
                     _lock.ExitWriteLock();
                 }
             }
+#endif
         }
 
         /// <summary>
