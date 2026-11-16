@@ -4,6 +4,22 @@
 
 It provides a familiar and straightforward way to perform database operations using ADO.NET, including creating database commands, executing queries, managing transactions, and working with `DataSet` objects.
 
+## Installation
+
+Install DAABLike from NuGet.
+
+Using the .NET CLI:
+
+```bash
+dotnet add package DAABLike
+```
+
+Using the Package Manager Console:
+
+```powershell
+Install-Package DAABLike
+```
+
 ## Getting Started
 
 DAABLike supports both .NET and .NET Framework. The way you create a `Database` instance differs depending on the target framework.
